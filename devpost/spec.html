@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rollcheck Technical Spec</title>
+<meta name="description" content="Visual companion to devpost/spec.md. The Markdown file is canonical.">
+<link rel="stylesheet" href="plan.css">
+<style>
+  .q { border: 1px solid var(--review-mark); background: var(--review-soft); border-radius: 6px; padding: 14px 16px; margin: 10px 0; }
+  .q h3 { margin: 0 0 6px !important; font-size: 15px !important; }
+  .q .rec b { color: var(--accent); font-weight: 600; }
+  .opt { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin: 10px 0; }
+  .opt .panel { padding: 10px 14px; font-size: 14px; }
+  .scale { display: flex; gap: 2px; margin-top: 8px; font: 500 12px var(--mono); }
+  .scale span { flex: 1; text-align: center; padding: 6px 0; border-radius: 3px; border: 1px solid var(--line); background: var(--surface); }
+  .scale .r { background: var(--review-soft); border-color: var(--review-mark); color: var(--review); }
+  .jstep { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .jstep { grid-template-columns: 1fr; } }
+  .tree { font: 13px/1.6 var(--mono); white-space: pre; overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; margin: 0; }
+  .tree .c { color: var(--muted); }
+  .kv { display: grid; grid-template-columns: 140px 1fr; gap: 4px 16px; font-size: 14px; }
+  .kv dt { color: var(--muted); } .kv dd { margin: 0; }
+  .steps.eight button { flex: 1 1 100px; }
+  .pill { font: 500 11px var(--mono); padding: 1px 6px; border: 1px solid var(--line-strong); border-radius: 3px; color: var(--muted); margin-left: 6px; vertical-align: 1px; }
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="wrap">
+    <div class="mark">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="1.5" y="1.5" width="19" height="19" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 8h10M6 11h10M6 14h6" stroke="currentColor" stroke-width="1.5"/><path d="M13.5 15l1.6 1.6 3-3.4" stroke="var(--accent)" stroke-width="1.6" fill="none"/></svg>
+      Rollcheck
+    </div>
+    <nav class="crumbs" aria-label="Planning documents">
+      <a href="scope.html">1 · Scope</a>
+      <a href="prd.html">2 · PRD</a>
+      <span aria-current="page">3 · Spec</span>
+    </nav>
+    <button class="theme-btn" type="button" id="theme">Theme: auto</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="title-block">
+    <div class="eyebrow">Planning document 3 of 3 · Technical spec</div>
+    <h1>Rollcheck — Technical Spec</h1>
+    <p class="lede">How Rollcheck is built: a pure, tested engine, a background worker for big files, and screens that only display what the engine decides.</p>
+    <div class="meta">
+      <span class="stamp">Approved</span>
+      <span>Source <b class="mono">devpost/spec.md</b> (canonical)</span>
+      <span>Implements <a href="prd.html">PRD</a></span>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="num">00</div>
+    <div>
+      <h2>Decided at review</h2>
+      <div class="q">
+        <h3>1 · Is a value exactly at the edge "within" the margin?</h3>
+        <p>Rule <span class="mono">G3 is at least 10</span>, margin 1. In the first 120 real sample rows, 17 students have G3 exactly 10 and 5 have absences exactly 10. Any positive margin puts values equal to the limit in review.</p>
+        <div class="opt">
+          <div class="panel"><b>Strict</b> <span class="mono">|v − L| &lt; m</span><div class="scale" aria-label="Strict: 9 decided, 9.6 review, 10 review, 10.4 review, 11 decided"><span>9</span><span class="r">9.6</span><span class="r">10</span><span class="r">10.4</span><span>11</span></div><p style="margin:8px 0 0">~22 near-limit rows + ~8 traps in review.</p></div>
+          <div class="panel"><b>Inclusive</b> <span class="mono">|v − L| ≤ m</span><div class="scale" aria-label="Inclusive: 9 to 11 all review"><span class="r">9</span><span class="r">9.6</span><span class="r">10</span><span class="r">10.4</span><span class="r">11</span></div><p style="margin:8px 0 0">~45+ rows in review.</p></div>
+        </div>
+        <p class="rec"><b>Decided:</b> strict. Checked in the build by the margin-boundary unit test and the real demo counts.</p>
+      </div>
+      <div class="q">
+        <h3>2 · Percent-formatted .xlsx numbers</h3>
+        <p>Excel stores a cell shown as "75%" as <span class="mono">0.75</span>. Should "attendance is at least 75" compare against 75 or 0.75?</p>
+        <p class="rec"><b>Decided:</b> compare as the percent (0.746 → 74.6), display <span class="mono">74.6%</span>, and note in the row detail that Excel stores 0.746. That reads the cell's own format; it isn't a guess.</p>
+      </div>
+      <details class="reveal"><summary><span class="caret"></span>Agent recommendations accepted at review<span class="count">6</span></summary><div class="body"><ul>
+        <li>TypeScript pinned to <span class="mono">6.0.3</span>: TS 7 is out, but typescript-eslint 8.72 supports only &lt;6.1.</li>
+        <li>GitHub Pages as the optional deploy (same repo, no extra account). Vercel works too, with no code change.</li>
+        <li>Sample data shipped as semicolon CSV (shows delimiter detection; keeps "10 " byte-exact).</li>
+        <li>Needs-review label text uses <span class="mono">#8A5A12</span> for AA contrast; <span class="mono">#B7791F</span> stays the icon and border colour.</li>
+        <li>"is one of" values split on new lines or <span class="mono">;</span>, never commas, so "74,6" stays one value.</li>
+        <li><span class="mono">data/source/student-mat.csv</span> committed (CC BY 4.0 allows it) so the sample can be rebuilt.</li>
+      </ul></div></details>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="num">01</div>
+    <div>
+      <h2>How This Works, In Plain Language</h2>
+      <p>Rollcheck is one web page that runs entirely in the browser. Once it has loaded, the student file is read and checked on this computer and never sent anywhere.</p>
+      <figure class="diagram">
+        <svg viewBox="0 0 900 330" role="img" aria-labelledby="a-t a-d">
+          <title id="a-t">Rollcheck architecture</title>
+          <desc id="a-d">The page (React screens and app state) sends file bytes and rules to a background worker. The worker runs the engine pipeline: parse, normalise, evaluate, review, group, invariant. It sends back progress, the table and the check result. Export and print run on the page. Nothing goes to a server.</desc>
+          <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="d-arrow"/></marker></defs>
+          <rect x="10" y="10" width="880" height="310" rx="6" fill="none" class="d-line" stroke-dasharray="5 5"/>
+          <text x="26" y="34" class="d-m">THIS COMPUTER · BROWSER TAB · NO SERVER</text>
+          <text x="40" y="66" class="d-m">PAGE (MAIN THREAD)</text>
+          <rect x="40" y="78" width="250" height="220" rx="5" class="d-box"/>
+          <text x="58" y="106" class="d-t">Screens  src/ui/</text>
+          <text x="58" y="126" class="d-s">File · Rules · Results</text>
+          <text x="58" y="160" class="d-t">App state  src/app/</text>
+          <text x="58" y="180" class="d-s">one reducer, no logic</text>
+          <text x="58" y="214" class="d-t">Export / print  src/io/</text>
+          <text x="58" y="234" class="d-s">3-sheet .xlsx · rule-set .json</text>
+          <text x="58" y="276" class="d-s">theme → localStorage (only thing kept)</text>
+          <line x1="290" y1="140" x2="376" y2="140" class="d-line" marker-end="url(#ar)"/>
+          <text x="300" y="130" class="d-s">bytes, rules</text>
+          <line x1="376" y1="200" x2="294" y2="200" class="d-line" marker-end="url(#ar)"/>
+          <text x="300" y="222" class="d-s">progress, table,</text>
+          <text x="300" y="238" class="d-s">result / error</text>
+          <text x="380" y="66" class="d-m">BACKGROUND WORKER  src/worker/</text>
+          <rect x="380" y="78" width="490" height="220" rx="5" class="d-box accent"/>
+          <text x="398" y="106" class="d-t">Engine  src/engine/ — pure, unit-tested</text>
+          <g>
+            <rect x="398" y="124" width="140" height="40" rx="4" class="d-box"/><text x="410" y="149" class="d-s">parse (csv / xlsx)</text>
+            <rect x="552" y="124" width="140" height="40" rx="4" class="d-box"/><text x="564" y="149" class="d-s">normalise · columns</text>
+            <rect x="706" y="124" width="148" height="40" rx="4" class="d-box"/><text x="718" y="149" class="d-s">evaluate rules</text>
+            <rect x="706" y="184" width="148" height="40" rx="4" class="d-box"/><text x="718" y="209" class="d-s">review (duplicates)</text>
+            <rect x="552" y="184" width="140" height="40" rx="4" class="d-box"/><text x="564" y="209" class="d-s">group · reasons</text>
+            <rect x="398" y="184" width="140" height="40" rx="4" class="d-box"/><text x="410" y="209" class="d-s">invariant ✓</text>
+            <line x1="538" y1="144" x2="548" y2="144" class="d-line" marker-end="url(#ar)"/>
+            <line x1="692" y1="144" x2="702" y2="144" class="d-line" marker-end="url(#ar)"/>
+            <line x1="780" y1="164" x2="780" y2="180" class="d-line" marker-end="url(#ar)"/>
+            <line x1="706" y1="204" x2="696" y2="204" class="d-line" marker-end="url(#ar)"/>
+            <line x1="552" y1="204" x2="542" y2="204" class="d-line" marker-end="url(#ar)"/>
+          </g>
+          <text x="398" y="258" class="d-s">Every cell keeps raw text + parsed value side by side.</text>
+          <text x="398" y="278" class="d-s">Counts must add up, or an error and no partial results.</text>
+        </svg>
+      </figure>
+      <div class="grid3">
+        <div class="panel"><div class="eyebrow">1 · Engine</div><p style="margin:6px 0 0">Plain TypeScript, no UI. Decides each group and writes the reasons. Fully unit-tested on its own: your practice goal.</p></div>
+        <div class="panel"><div class="eyebrow">2 · Worker</div><p style="margin:6px 0 0">A second browser thread. Big files are read and checked there, so the page never freezes.</p></div>
+        <div class="panel"><div class="eyebrow">3 · Screens</div><p style="margin:6px 0 0">React components that only display results and pass on choices. No eligibility logic.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="num">02</div>
+    <div>
+      <h2>The Core Journey Through the System</h2>
+      <p class="cite">Implements prd.md › The Core Journey</p>
+      <div class="steps eight" role="tablist" aria-label="Journey steps" id="jtabs"></div>
+      <div id="jpanels"></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="num">03</div>
+    <div>
+      <h2>The rule that decides a row</h2>
+      <p class="cite">Implements prd.md › Checking Students · Engine — Evaluate, Group</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Cell (rule: is at least 10, margin 1)</th><th>Kind</th><th>Outcome</th><th>Reason</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">12</td><td>number</td><td><span class="chip ok">Pass</span></td><td>—</td></tr>
+          <tr><td class="mono">7</td><td>number</td><td><span class="chip no">Fail</span></td><td>G3 is 7, below the 10 limit.</td></tr>
+          <tr><td class="mono">9.6</td><td>number</td><td><span class="chip rv">Review</span></td><td>G3 is 9.6, within 1 of the 10 limit. Confirm before deciding.</td></tr>
+          <tr><td class="mono">AB</td><td>text</td><td><span class="chip rv">Review</span></td><td>G3 is 'AB', not a number. Check manually.</td></tr>
+          <tr><td class="mono">12%</td><td>text-number</td><td><span class="chip rv">Review</span></td><td>…'12%', a number stored as text. Confirm the value.</td></tr>
+          <tr><td class="mono">9,8</td><td>comma-decimal</td><td><span class="chip rv">Review</span></td><td>…'9,8', which uses a comma. Check whether it means 9.8.</td></tr>
+          <tr><td class="mono">(blank)</td><td>blank</td><td><span class="chip rv">Review</span></td><td>G3 is blank.</td></tr>
+        </tbody>
+      </table></div>
+      <p style="margin-top:12px">Row precedence: any <span class="chip no">Fail</span> → Not eligible · else any <span class="chip rv">Review</span> or duplicate flag → Needs review · else <span class="chip ok">Eligible</span>. All reasons are listed.</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="num">04</div>
+    <div>
+      <h2>Components</h2>
+      <p>Each block maps to a heading in <span class="mono">spec.md</span>, which <span class="mono">5-build</span> cites.</p>
+      <div id="comps"></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="num">05</div>
+    <div>
+      <h2>Stack</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Piece</th><th>Version</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td><a href="https://vite.dev/guide/">Vite</a> + <a href="https://react.dev/">React</a></td><td class="mono">8.3 · 19.3</td><td>Static build, no backend</td></tr>
+          <tr><td><a href="https://www.typescriptlang.org/docs/">TypeScript</a></td><td class="mono">6.0.3 strict</td><td>Pinned below 7 for typescript-eslint</td></tr>
+          <tr><td><a href="https://tailwindcss.com/docs">Tailwind CSS</a></td><td class="mono">4.3</td><td>Tokens as CSS variables</td></tr>
+          <tr><td><a href="https://docs.sheetjs.com/">SheetJS</a></td><td class="mono">0.20.3</td><td>From cdn.sheetjs.com tarball, not npm registry</td></tr>
+          <tr><td><a href="https://www.papaparse.com/docs">Papa Parse</a></td><td class="mono">5.7</td><td>CSV, auto delimiter, streaming</td></tr>
+          <tr><td><a href="https://tanstack.com/virtual/latest">TanStack Virtual</a></td><td class="mono">3.14</td><td>50k-row table</td></tr>
+          <tr><td><a href="https://lucide.dev/">lucide-react</a> · <a href="https://fontsource.org/fonts/ibm-plex-sans">@fontsource</a></td><td class="mono">1.x · 5.3</td><td>16px icons · self-hosted Plex</td></tr>
+          <tr><td><a href="https://vitest.dev/guide/">Vitest</a> + <a href="https://testing-library.com/docs/react-testing-library/intro/">RTL</a></td><td class="mono">5.0 · 16.3</td><td>Engine units + main-flow UI</td></tr>
+          <tr><td><a href="https://typescript-eslint.io/getting-started">ESLint</a></td><td class="mono">10 · ts-eslint 8.72</td><td>Lint gate</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="num">06</div>
+    <div>
+      <h2>Where It Runs and How Someone Tries It</h2>
+      <dl class="kv">
+        <dt>Runtime</dt><dd>Any modern desktop browser. No keys, no env vars.</dd>
+        <dt>Run</dt><dd><span class="mono">npm install</span> → <span class="mono">npm run dev</span> → <span class="mono">http://localhost:5173</span></dd>
+        <dt>Gates</dt><dd><span class="mono">npm test</span> · <span class="mono">npm run check</span> (type-check, lint, tests, build) · CI on every push</dd>
+        <dt>Demo</dt><dd>Try sample data → Check students</dd>
+        <dt>Deploy</dt><dd>Optional: GitHub Pages via Actions, <span class="mono">base: './'</span></dd>
+      </dl>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="num">07</div>
+    <div>
+      <h2>Data Model</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Data</th><th>Lives in</th><th>After leaving</th></tr></thead>
+        <tbody>
+          <tr><td>File bytes</td><td>Worker memory</td><td>Gone on Start over / tab close</td></tr>
+          <tr><td>Parsed table (raw + value + kind)</td><td>Worker + React state</td><td>Gone on Start over / close</td></tr>
+          <tr><td>Rules, margins, columns</td><td>React state</td><td>Kept on Change rules; persists only as downloaded .json</td></tr>
+          <tr><td>Check result</td><td>React state</td><td>Replaced each check</td></tr>
+          <tr><td>Theme</td><td>localStorage</td><td>Remembered</td></tr>
+        </tbody>
+      </table></div>
+      <p style="margin-top:12px">Nothing about students is ever written to localStorage, IndexedDB, cookies or the network.</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="num">08</div>
+    <div>
+      <h2>File Structure</h2>
+<pre class="tree">eligibility-checker/
+├── .github/workflows/  <span class="c"># ci.yml (gates) · pages.yml (optional deploy)</span>
+├── data/source/        <span class="c"># student-mat.csv, UCI, CC BY 4.0</span>
+├── devpost/            <span class="c"># scope / prd / spec (+ html)</span>
+├── public/sample/      <span class="c"># rollcheck-sample.csv with documented traps</span>
+├── scripts/            <span class="c"># make-sample.mjs</span>
+├── src/
+│   ├── engine/         <span class="c"># pure logic + *.test.ts</span>
+│   ├── worker/         <span class="c"># rollcheck.worker.ts · client.ts</span>
+│   ├── io/             <span class="c"># exportXlsx · download · readFile</span>
+│   ├── app/            <span class="c"># reducer · App.tsx · App.test.tsx</span>
+│   ├── ui/             <span class="c"># shell · file · rules · results · copy.ts</span>
+│   └── styles/         <span class="c"># tokens, print, reduced motion</span>
+├── tests/fixtures/     <span class="c"># tiny edge-case .csv / .xlsx</span>
+├── DATA_SOURCES.md  README.md
+└── package.json  vite.config.ts  eslint.config.js</pre>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="num">09</div>
+    <div>
+      <h2>Failure Modes and Simplifications</h2>
+      <details class="reveal" open><summary><span class="caret"></span>Where it could break<span class="count">4</span></summary><div class="body"><ul>
+        <li><b>Huge .xlsx</b> → read in the worker with "Reading file…"; Start over terminates the worker.</li>
+        <li><b>Odd formats</b> (dates, #N/A, percent) → raw text kept; not a clean number → Needs review.</li>
+        <li><b>Engine bug</b> → invariant error, no partial results.</li>
+        <li><b>No Worker</b> → same engine in-thread; slower, still correct.</li>
+      </ul></div></details>
+      <details class="reveal"><summary><span class="caret"></span>Simplified, on purpose<span class="count">4</span></summary><div class="body"><ul>
+        <li>Rule sets as .json downloads, not an in-app library.</li>
+        <li>Coarse .xlsx read progress (SheetJS reads in one call).</li>
+        <li>Rule-based duplicate names, not fuzzy matching: explainable in one sentence.</li>
+        <li>Sample as CSV; .xlsx covered by test fixtures.</li>
+      </ul></div></details>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">Companion view of <span class="mono">devpost/spec.md</span>. If the two ever differ, the Markdown file wins.</footer>
+
+<script>
+(function () {
+  var btn = document.getElementById('theme'), root = document.documentElement;
+  var order = ['auto', 'light', 'dark'], i = 0;
+  try { var s = localStorage.getItem('rollcheck-plan-theme'); if (s) i = Math.max(0, order.indexOf(s)); } catch (e) {}
+  function apply() { var m = order[i]; if (m === 'auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', m); btn.textContent = 'Theme: ' + m; }
+  btn.addEventListener('click', function () { i = (i + 1) % 3; try { localStorage.setItem('rollcheck-plan-theme', order[i]); } catch (e) {} apply(); });
+  apply();
+
+  function esc(t) { return t.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+
+  var journey = [
+    ['Open', 'Static page loads. Theme read from localStorage, the only thing remembered.', ['main.tsx', 'ui/shell/ThemeToggle']],
+    ['Drop file', 'FileStage reads bytes (or fetches the bundled sample CSV) and sends them with the file name to the worker.', ['ui/file/DropZone', 'io/readFile', 'worker/client']],
+    ['Read', 'Worker: parse (Papa / SheetJS) → normalise (header row, renames, raw + value + kind) → columns (types, ID / name / match detection). Progress posted; then the table.', ['engine/parse', 'engine/normalise', 'engine/columns']],
+    ['Rules', 'Reducer stores the table. Rules screen: summary, preview, pickers, builder. Rule-set load and warnings come from engine helpers.', ['ui/rules/*', 'engine/ruleset', 'app/state']],
+    ['Check', 'Worker: evaluate → review → group → invariant. Pass → CheckResult. Fail → error, no results.', ['engine/check', 'engine/evaluate', 'engine/review', 'engine/group', 'engine/invariant']],
+    ['Results', 'Counters, impact, virtualised table and row panel read the CheckResult. Filter and search are view state, not a re-check.', ['ui/results/*']],
+    ['Download', '3-sheet .xlsx via SheetJS (raw text, never reformatted); rule set as .json; window.print() with print CSS.', ['io/exportXlsx', 'io/download', 'styles/index.css']],
+    ['Again', 'Change rules → back with table and rules kept. Start over → reducer reset, worker copy dropped.', ['app/state', 'worker/client']]
+  ];
+  var tabs = document.getElementById('jtabs'), panels = document.getElementById('jpanels');
+  journey.forEach(function (j, k) {
+    var b = document.createElement('button');
+    b.setAttribute('role', 'tab'); b.id = 'jt' + k; b.setAttribute('aria-controls', 'jp' + k);
+    b.setAttribute('aria-selected', k === 0); b.tabIndex = k === 0 ? 0 : -1;
+    b.innerHTML = '<span class="n">STEP ' + (k + 1) + '</span>' + esc(j[0]);
+    tabs.appendChild(b);
+    var p = document.createElement('div');
+    p.className = 'step-panel panel'; p.id = 'jp' + k; p.setAttribute('role', 'tabpanel'); p.setAttribute('aria-labelledby', b.id); p.hidden = k !== 0;
+    p.innerHTML = '<p style="margin:0 0 10px">' + esc(j[1]) + '</p><div>' + j[2].map(function (f) { return '<span class="pill">src/' + esc(f) + '</span>'; }).join(' ') + '</div>';
+    panels.appendChild(p);
+  });
+  var tl = Array.prototype.slice.call(tabs.children);
+  function sel(t) { tl.forEach(function (x) { var on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; document.getElementById(x.getAttribute('aria-controls')).hidden = !on; }); t.focus(); }
+  tl.forEach(function (t, k) {
+    t.addEventListener('click', function () { sel(t); });
+    t.addEventListener('keydown', function (e) { if (e.key === 'ArrowRight') sel(tl[(k + 1) % tl.length]); if (e.key === 'ArrowLeft') sel(tl[(k - 1 + tl.length) % tl.length]); });
+  });
+
+  var comps = [
+    ['Engine — Parse', 'Reading the File', 'CSV via Papa (auto delimiter, all strings). XLSX via SheetJS: text cells exact; numbers as full stored value (Excel\'s shown text kept for the detail panel); dates and zero-padded formats as displayed text.'],
+    ['Engine — Normalise', 'Reading the File · States and Boundaries', 'First non-empty row = header; "Column N" / "Name (2)" renames with notices; Excel row numbers kept. classifyCell: number · text-number ("75 %", "10 ") · comma-decimal ("74,6") · text ("AB") · blank.'],
+    ['Engine — Columns', 'Reading the File · Building Rules', 'Type tags number / text / mixed; mostly-non-numeric above 50%; auto-detect ID, name and match columns from headers.'],
+    ['Engine — Evaluate', 'Building Rules · Checking Students', 'at least / at most with margin; equals / is not / is one of: trimmed, case-insensitive, numeric-aware; is not blank is the only rule where blank fails.'],
+    ['Engine — Review Detection', 'Checking Students', 'Duplicate IDs (all rows named). Likely duplicates: normalised names with initials matched in position + all match columns equal. Both rows flagged.'],
+    ['Engine — Group', 'Checking Students · Reviewing Results', 'Precedence, reason ordering, sort order, counts, rule impact.'],
+    ['Engine — Invariant', 'Checking Students', 'Counts add up, each row exactly once, every reason non-empty, or InvariantError.'],
+    ['Engine — Rule Sets', 'Saving and Sharing Results', 'Versioned JSON with column names only; validation; missing columns returned for remapping.'],
+    ['Worker', 'Reading the File · Checking Students', 'read / check / reset messages; keeps the table; throttled progress; in-thread fallback for tests.'],
+    ['IO', 'Saving and Sharing Results', 'Results · Rules used · Needs review sheets, every cell written as raw text. Blob downloads.'],
+    ['App State', 'Screens and Layout', 'One reducer; stepper reachability derived from state.'],
+    ['UI — File / Rules / Results', 'Screens and Layout', 'DropZone, pickers, preview, keyboard rule builder, counters (aria-pressed), aria-live checked line, virtualised table, focus-trapped row panel, print header.'],
+    ['Sample Data', 'Sample Data', 'make-sample.mjs: first rows of student-mat.csv + Student ID + synthetic names + 8 documented traps → public/sample/rollcheck-sample.csv. Deterministic.']
+  ];
+  var c = document.getElementById('comps');
+  comps.forEach(function (x) {
+    var d = document.createElement('details'); d.className = 'reveal';
+    d.innerHTML = '<summary><span class="caret"></span>' + esc(x[0]) + '<span class="count">prd › ' + esc(x[1]) + '</span></summary><div class="body"><p>' + esc(x[2]) + '</p></div>';
+    c.appendChild(d);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rollcheck Requirements</title>
+<meta name="description" content="Visual companion to devpost/prd.md. The Markdown file is canonical.">
+<link rel="stylesheet" href="plan.css">
+<style>
+  .mock { border: 1px solid var(--line); border-radius: 6px; background: var(--bg); padding: 16px; font-size: 13px; }
+  .mock .bar { height: 8px; border-radius: 2px; background: var(--line); margin: 6px 0; }
+  .mock .drop { border: 1.5px dashed var(--line-strong); border-radius: 6px; padding: 28px 16px; color: var(--muted); text-align: center; background: var(--surface); }
+  .mock .btn { display: inline-block; border: 1px solid var(--line-strong); border-radius: 4px; padding: 4px 10px; background: var(--surface); }
+  .mock .btn.pri { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+  .mock .ctr { border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; background: var(--surface); }
+  .mock .ctr b { font: 600 22px var(--sans); display: block; font-variant-numeric: tabular-nums; }
+  .mock .row { display: grid; grid-template-columns: 1.2fr 1fr 1.4fr; gap: 8px; margin: 6px 0; }
+  .mock .cell { border: 1px solid var(--line); border-radius: 4px; padding: 4px 8px; background: var(--surface); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .split { grid-template-columns: 1fr; } }
+  .crit { list-style: none; padding-left: 0 !important; }
+  .crit li { padding-left: 24px; position: relative; }
+  .crit li::before { content: ""; position: absolute; left: 2px; top: 6px; width: 11px; height: 11px; border: 1.5px solid var(--line-strong); border-radius: 2px; }
+  .q { border: 1px solid var(--review-mark); background: var(--review-soft); border-radius: 6px; padding: 14px 16px; margin: 10px 0; }
+  .q h3 { margin: 0 0 6px !important; font-size: 15px !important; }
+  .q .rec { font-size: 14px; }
+  .q .rec b { color: var(--accent); font-weight: 600; }
+  .reason { font-family: var(--mono); font-size: 13px; }
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="wrap">
+    <div class="mark">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="1.5" y="1.5" width="19" height="19" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 8h10M6 11h10M6 14h6" stroke="currentColor" stroke-width="1.5"/><path d="M13.5 15l1.6 1.6 3-3.4" stroke="var(--accent)" stroke-width="1.6" fill="none"/></svg>
+      Rollcheck
+    </div>
+    <nav class="crumbs" aria-label="Planning documents">
+      <a href="scope.html">1 · Scope</a>
+      <span aria-current="page">2 · PRD</span>
+      <a href="spec.html">3 · Spec</a>
+    </nav>
+    <button class="theme-btn" type="button" id="theme">Theme: auto</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="title-block">
+    <div class="eyebrow">Planning document 2 of 3 · Product requirements</div>
+    <h1>Rollcheck — Product Requirements</h1>
+    <p class="lede">What office staff see, do and get back, screen by screen, and how to tell each part works.</p>
+    <div class="meta">
+      <span class="stamp">Approved</span>
+      <span>Source <b class="mono">devpost/prd.md</b> (canonical)</span>
+      <span>Builds on <a href="scope.html">scope</a></span>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="num">00</div>
+    <div>
+      <h2>Decisions made at review</h2>
+      <div class="grid3">
+        <div class="panel"><div class="eyebrow">Group precedence</div><p style="margin:6px 0 0">Any clear failure → <span class="chip no">Not eligible</span>, review notes still listed. Else any flag → <span class="chip rv">Needs review</span>. Else <span class="chip ok">Eligible</span>.</p></div>
+        <div class="panel"><div class="eyebrow">Near-limit example</div><p style="margin:6px 0 0"><span class="mono">74.6</span> is within 1 of 75 → review. Clear failures use values outside the margin (<span class="mono">72</span>).</p></div>
+        <div class="panel"><div class="eyebrow">Duplicate names</div><p style="margin:6px 0 0">Initials match in position (<span class="mono">s kumar ↔ suresh kumar</span>) plus "Also match duplicates on" columns. Both rows flagged, each naming the other.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="num">01</div>
+    <div>
+      <h2>The Core Journey</h2>
+      <p class="cite">Develops scope.md › The Core Loop, What "Working" Looks Like</p>
+      <figure class="diagram">
+        <svg viewBox="0 0 900 250" role="img" aria-labelledby="j-t j-d">
+          <title id="j-t">Rollcheck journey</title>
+          <desc id="j-d">File screen: drop a file or try sample data. Rules screen: check summary, set rules, check students. Results screen: filter, search, open a row, then download, save rule set or print. Change rules returns to Rules; Start over returns to File.</desc>
+          <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="d-arrow"/></marker></defs>
+          <text x="20" y="26" class="d-m">1 · FILE</text>
+          <rect x="20" y="40" width="240" height="120" rx="5" class="d-box"/>
+          <text x="36" y="68" class="d-t">Drop .csv / .xlsx</text>
+          <text x="36" y="90" class="d-s">or Try sample data</text>
+          <text x="36" y="120" class="d-s">Read on this computer</text>
+          <text x="36" y="140" class="d-s">Wrong type · empty · unreadable</text>
+          <text x="330" y="26" class="d-m">2 · RULES</text>
+          <rect x="330" y="40" width="240" height="120" rx="5" class="d-box"/>
+          <text x="346" y="68" class="d-t">Summary + preview</text>
+          <text x="346" y="90" class="d-s">sheet, ID / name, column types</text>
+          <text x="346" y="120" class="d-s">1–5 AND rules, margin</text>
+          <text x="346" y="140" class="d-s">Load rule set · Check students</text>
+          <text x="640" y="26" class="d-m">3 · RESULTS</text>
+          <rect x="640" y="40" width="240" height="120" rx="5" class="d-box accent"/>
+          <text x="656" y="68" class="d-t">N of N students checked</text>
+          <text x="656" y="90" class="d-s">counters filter · search · impact</text>
+          <text x="656" y="120" class="d-s">row detail panel</text>
+          <text x="656" y="140" class="d-s">Download · Save rules · Print</text>
+          <line x1="260" y1="100" x2="326" y2="100" class="d-line" marker-end="url(#ar)"/>
+          <line x1="570" y1="100" x2="636" y2="100" class="d-line" marker-end="url(#ar)"/>
+          <path d="M700 160 V196 H450 V164" class="d-line" stroke-dasharray="4 4" marker-end="url(#ar)"/>
+          <text x="470" y="214" class="d-s">Change rules (rules kept)</text>
+          <path d="M820 160 V232 H140 V164" class="d-line" stroke-dasharray="4 4" marker-end="url(#ar)"/>
+          <text x="160" y="226" class="d-s">Start over (file and rules cleared)</text>
+        </svg>
+      </figure>
+      <ol>
+        <li>Open Rollcheck: name, one line, drop zone, "Try sample data", privacy line.</li>
+        <li>Drop or pick a .csv / .xlsx, or try sample data.</li>
+        <li>Rules screen: summary, sheet picker, ID and name columns, typed 5-row preview.</li>
+        <li>Add 1–5 rules, adjust margin, or load a rule set. <b>Check students</b>.</li>
+        <li>Results: "N of N students checked", counters, impact, table with Needs review first.</li>
+        <li>Filter, search, open a row for every cell and reason.</li>
+        <li><b>Download .xlsx.</b> Success: every row with Status and Reason, counts add up.</li>
+        <li>Next cycle: new export, load the saved rule set.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="num">02</div>
+    <div>
+      <h2>Screens and Behavior</h2>
+      <p>One page, three stages, visible stepper. Pick a stage.</p>
+      <div class="steps" role="tablist" aria-label="Screens">
+        <button role="tab" id="t1" aria-controls="p1" aria-selected="true"><span class="n">STAGE 1</span>File</button>
+        <button role="tab" id="t2" aria-controls="p2" aria-selected="false" tabindex="-1"><span class="n">STAGE 2</span>Rules</button>
+        <button role="tab" id="t3" aria-controls="p3" aria-selected="false" tabindex="-1"><span class="n">STAGE 3</span>Results</button>
+      </div>
+
+      <div class="step-panel" role="tabpanel" id="p1" aria-labelledby="t1">
+        <div class="split">
+          <div class="mock" aria-hidden="true">
+            <b style="font-size:15px">Rollcheck</b><div style="color:var(--muted);margin:2px 0 12px">Check a student sheet against eligibility rules.</div>
+            <div class="drop">Drop a .csv or .xlsx file<br><span style="font-size:12px">or choose a file</span></div>
+            <div style="margin-top:10px"><span class="btn">Try sample data</span></div>
+            <div style="margin-top:10px;color:var(--muted);font-size:12px">Your file is processed on this computer and never uploaded.</div>
+          </div>
+          <div>
+            <h3 style="margin-top:0">Reading the File</h3>
+            <ul>
+              <li>CSV delimiter auto-detected (comma, semicolon, tab).</li>
+              <li>First non-empty row is the header.</li>
+              <li>Duplicate / blank headers renamed ("Column 7"), user told.</li>
+              <li>Cells shown exactly as in the file: "00417" stays "00417".</li>
+              <li>50,000+ rows: page stays responsive, progress text.</li>
+            </ul>
+          </div>
+        </div>
+        <details class="reveal"><summary><span class="caret"></span>States and errors<span class="count">5</span></summary><div class="body"><ul>
+          <li><b>Reading:</b> progress text, drop zone disabled.</li>
+          <li><b>Wrong type:</b> <span class="reason">Only .csv and .xlsx files are supported.</span></li>
+          <li><b>Empty / headers only:</b> <span class="reason">This file has no student rows.</span></li>
+          <li><b>Unreadable:</b> <span class="reason">This file could not be read. Check that it opens in Excel, then try again.</span></li>
+          <li><b>First use:</b> nothing remembered except the theme.</li>
+        </ul></div></details>
+        <details class="reveal"><summary><span class="caret"></span>How we'll know it works<span class="count">3</span></summary><div class="body"><ul class="crit">
+          <li>student-mat.csv (semicolon) shows correct row and column counts and preview.</li>
+          <li>Three blank rows above the header: fourth row used as headers.</li>
+          <li>ID "00417" displays as "00417".</li>
+        </ul></div></details>
+      </div>
+
+      <div class="step-panel" role="tabpanel" id="p2" aria-labelledby="t2" hidden>
+        <div class="split">
+          <div class="mock" aria-hidden="true">
+            <div style="color:var(--muted)">sample.xlsx · Sheet1 · 120 rows · 35 columns</div>
+            <div class="bar" style="width:90%"></div><div class="bar" style="width:70%"></div>
+            <div style="margin-top:12px;font-weight:500">Rules (all must pass)</div>
+            <div class="row"><span class="cell">absences</span><span class="cell">is at most</span><span class="cell">10 · margin 1</span></div>
+            <div class="row"><span class="cell">G3</span><span class="cell">is at least</span><span class="cell">10 · margin 1</span></div>
+            <div style="margin-top:10px"><span class="btn">Add rule</span> <span class="btn">Load rule set</span> <span class="btn pri">Check students</span></div>
+          </div>
+          <div>
+            <h3 style="margin-top:0">Building Rules</h3>
+            <ul>
+              <li>1–5 rules, AND. "Add rule" disabled at 5.</li>
+              <li>"Also match duplicates on" column picker, pre-filled from headers.</li>
+              <li>is at least · is at most · equals · is not · is one of · is not blank.</li>
+              <li>Number rules: "Treat values within [1] of the limit as Needs review". 0 turns it off.</li>
+              <li>Add, remove, reorder (move up / down) by keyboard.</li>
+              <li>Column types shown: number / text / <b>mixed</b> (highlighted).</li>
+            </ul>
+          </div>
+        </div>
+        <details class="reveal"><summary><span class="caret"></span>States and errors<span class="count">6</span></summary><div class="body"><ul>
+          <li><b>Several sheets:</b> picker, first selected; switching clears rules on missing columns, with a note.</li>
+          <li><b>Renamed columns:</b> notice listing each rename.</li>
+          <li><b>No rules:</b> Check students disabled: "Add at least one rule."</li>
+          <li><b>Incomplete rule:</b> field marked and named.</li>
+          <li><b>Mostly non-numeric column:</b> <span class="reason">Most values in Attendance are not numbers. Results for this rule will mostly be Needs review.</span> Can continue.</li>
+          <li><b>Rule set column missing:</b> <span class="reason">Column 'Attendance %' is not in this file. Choose a column for this rule.</span></li>
+        </ul></div></details>
+        <details class="reveal"><summary><span class="caret"></span>How we'll know it works<span class="count">3</span></summary><div class="body"><ul class="crit">
+          <li>At 5 rules "Add rule" is disabled; removing one re-enables it.</li>
+          <li>"is not blank" hides the value field.</li>
+          <li>Add, edit, reorder, remove with the keyboard only.</li>
+        </ul></div></details>
+      </div>
+
+      <div class="step-panel" role="tabpanel" id="p3" aria-labelledby="t3" hidden>
+        <div class="split">
+          <div class="mock" aria-hidden="true">
+            <div style="font-weight:500;margin-bottom:8px">120 of 120 students checked</div>
+            <div class="grid3" style="grid-template-columns:repeat(3,1fr);gap:8px">
+              <div class="ctr"><span class="chip ok">Eligible</span><b>—</b></div>
+              <div class="ctr"><span class="chip no">Not eligible</span><b>—</b></div>
+              <div class="ctr"><span class="chip rv">Needs review</span><b>—</b></div>
+            </div>
+            <div class="row" style="margin-top:12px"><span class="cell">S014</span><span class="cell">9.6</span><span class="cell">within 1 of the 10 limit</span></div>
+            <div class="row"><span class="cell">S052</span><span class="cell">AB</span><span class="cell">not a number</span></div>
+            <div style="margin-top:10px"><span class="btn pri">Download results (.xlsx)</span> <span class="btn">Print</span></div>
+          </div>
+          <div>
+            <h3 style="margin-top:0">Checking Students</h3>
+            <ul>
+              <li>Exactly one group per row, with a reason; several issues all listed.</li>
+              <li>Counts must add up, or an error and no partial results.</li>
+              <li>Needs review first, then Not eligible, then Eligible.</li>
+            </ul>
+            <h3>Reviewing Results</h3>
+            <ul>
+              <li>Counters filter; search ID, name, any cell.</li>
+              <li>Rule impact per rule, plus duplicate checks.</li>
+              <li>Row panel: every cell, each rule's outcome, every reason. Esc closes.</li>
+            </ul>
+          </div>
+        </div>
+        <details class="reveal" open><summary><span class="caret"></span>Reason sentences<span class="count">9</span></summary><div class="body"><ul>
+          <li><span class="chip no">Not eligible</span> <span class="reason">Attendance is 72, below the 75 limit.</span></li>
+          <li><span class="chip rv">Needs review</span> <span class="reason">Attendance is 75.4, within 1 of the 75 limit. Confirm before deciding.</span></li>
+          <li><span class="chip rv">Needs review</span> <span class="reason">Attendance is 'AB', not a number. Check manually.</span></li>
+          <li><span class="chip rv">Needs review</span> <span class="reason">Attendance is '75 %', a number stored as text. Confirm the value.</span></li>
+          <li><span class="chip rv">Needs review</span> <span class="reason">Attendance is '74,6', which uses a comma. Check whether it means 74.6.</span></li>
+          <li><span class="chip rv">Needs review</span> <span class="reason">Attendance is blank.</span></li>
+          <li><span class="chip rv">Needs review</span> <span class="reason">Roll number S017 appears twice (rows 18 and 203).</span></li>
+          <li><span class="chip rv">Needs review</span> <span class="reason">Possible duplicate: 'S. Kumar' and 'SURESH KUMAR' share date of birth 2004-03-11.</span></li>
+          <li><span class="chip ok">Eligible</span> <span class="reason">Meets all 2 rules.</span></li>
+        </ul></div></details>
+        <details class="reveal"><summary><span class="caret"></span>Saving and Sharing Results<span class="count">3</span></summary><div class="body"><ul>
+          <li><b>.xlsx:</b> "Results" (original columns + Status + Reason) · "Rules used" (rules, margin, timestamp, file, sheet, counts) · "Needs review".</li>
+          <li><b>Rule set .json:</b> rules and margins only, no student data. Missing columns can be remapped on load.</li>
+          <li><b>Print:</b> file name, date, rules, counts, table. No buttons.</li>
+        </ul></div></details>
+        <details class="reveal"><summary><span class="caret"></span>How we'll know it works<span class="count">9</span></summary><div class="body"><ul class="crit">
+          <li>Sample data + demo rules: "120 of 120 students checked", counters add to 120.</li>
+          <li>Every inserted trap lands in Needs review with its reason.</li>
+          <li>Raw values match the file ("9.6", "AB", "10 ").</li>
+          <li>"Needs review" filter count matches the counter.</li>
+          <li>Row panel shows every original column.</li>
+          <li>Rule impact matches a manual count of the sample.</li>
+          <li>.xlsx opens in Excel with 3 sheets, values unchanged.</li>
+          <li>Saved rule set reloads and reproduces the same counts.</li>
+          <li>Print preview: rules, counts, table, no buttons.</li>
+        </ul></div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="num">03</div>
+    <div>
+      <h2>Look and Feel</h2>
+      <p class="cite">Develops scope.md › Inspiration &amp; Identity</p>
+      <div class="table-wrap"><table>
+        <tbody>
+          <tr><th>Feel</th><td>A well-kept office register. Calm, precise, trustworthy.</td></tr>
+          <tr><th>Type</th><td>IBM Plex Sans (UI) · <span class="mono">IBM Plex Mono (values, IDs)</span> · tabular numerals · 13 / 14 / 16 / 20 / 28</td></tr>
+          <tr><th>Colour</th><td><span class="mono">#FAF9F6 · #FFFFFF · #1C1B19 · #6B6860 · #E4E1DA · accent #1F5F46</span></td></tr>
+          <tr><th>Status</th><td><span class="chip ok">Eligible #2F7A4B</span> <span class="chip no">Not eligible #A33B2B</span> <span class="chip rv">Needs review #B7791F</span> · always label + icon</td></tr>
+          <tr><th>Dark</th><td>System setting + manual toggle; re-tuned, not inverted.</td></tr>
+          <tr><th>Shape</th><td>≤6px radius · 1px borders · one subtle shadow for popovers / panel · 4px grid · 1200px max</td></tr>
+          <tr><th>Motion</th><td>120–180ms on state changes; off for reduced motion.</td></tr>
+          <tr><th>Copy</th><td>Short, calm, specific. No "Oops", no "!", no "magic".</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="num">04</div>
+    <div>
+      <h2>Product Decisions</h2>
+      <details class="reveal" open><summary><span class="caret"></span>Learner decisions<span class="count">9</span></summary><div class="body"><ul>
+        <li>Three groups, not pass/fail: uncertain cases go to a human.</li>
+        <li>Flag only, never fix or merge: the office owns the data.</li>
+        <li>Raw values always shown: rounding is how 74.6 becomes 75%.</li>
+        <li>AND-only, max 5 rules.</li>
+        <li>Margin default 1, editable.</li>
+        <li>Count invariant with hard error.</li>
+        <li>Everything stays in the browser.</li>
+        <li>Rule sets as .json files, no accounts.</li>
+        <li>Name: Rollcheck (agent-chosen at the learner's request).</li>
+      </ul></div></details>
+      <details class="reveal"><summary><span class="caret"></span>Confirmed at review<span class="count">3</span></summary><div class="body"><ul>
+        <li>equals / is not / is one of: case-insensitive, outer spaces ignored; number columns compare numbers ("75" = "75.0"); no margin. Raw value always displayed.</li>
+        <li>Mostly-non-numeric warning above 50% of non-blank cells.</li>
+        <li>Both rows of a duplicate pair flagged; each reason names the other row number.</li>
+      </ul></div></details>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="num">05</div>
+    <div>
+      <h2>Boundary</h2>
+      <details class="reveal"><summary><span class="caret"></span><span class="chip rv">Deferred</span> implied but not built<span class="count">4</span></summary><div class="body"><ul>
+        <li>In-app rule-set library: .json files cover reuse.</li>
+        <li>Merging two files: separate matching problem.</li>
+        <li>OR-logic: builder and reasons get much harder to read.</li>
+        <li>Remembering last file or rules: would store student data in the browser.</li>
+      </ul></div></details>
+      <details class="reveal"><summary><span class="caret"></span><span class="chip no">Non-goals</span><span class="count">5</span></summary><div class="body"><ul>
+        <li>No AI inside the app.</li><li>No login, server or database.</li><li>No scheduling.</li><li>No editing data.</li><li>No mobile-first design.</li>
+      </ul></div></details>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">Companion view of <span class="mono">devpost/prd.md</span>. If the two ever differ, the Markdown file wins.</footer>
+
+<script>
+(function () {
+  var btn = document.getElementById('theme'), root = document.documentElement;
+  var order = ['auto', 'light', 'dark'], i = 0;
+  try { var s = localStorage.getItem('rollcheck-plan-theme'); if (s) i = Math.max(0, order.indexOf(s)); } catch (e) {}
+  function apply() { var m = order[i]; if (m === 'auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', m); btn.textContent = 'Theme: ' + m; }
+  btn.addEventListener('click', function () { i = (i + 1) % 3; try { localStorage.setItem('rollcheck-plan-theme', order[i]); } catch (e) {} apply(); });
+  apply();
+
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[role=tab]'));
+  function select(t) {
+    tabs.forEach(function (x) {
+      var on = x === t;
+      x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1;
+      document.getElementById(x.getAttribute('aria-controls')).hidden = !on;
+    });
+    t.focus();
+  }
+  tabs.forEach(function (t, k) {
+    t.addEventListener('click', function () { select(t); });
+    t.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight') select(tabs[(k + 1) % tabs.length]);
+      if (e.key === 'ArrowLeft') select(tabs[(k - 1 + tabs.length) % tabs.length]);
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+---
+doc: checklist
+status: approved
+---
+
+# Build Checklist
+
+Build mode: fast (chosen by the learner in advance)
+
+## Slices
+
+- [x] **1. The engine sorts real students correctly, proven by tests**
+  Becomes usable: `npm test` runs the full engine on fixtures and on the real UCI `student-mat.csv`, and every edge case, condition, the margin rule, duplicates, rule sets and the invariant pass. A runnable script prints the three counts for the demo rules on the real data.
+  Why now: The engine is the kernel ("refuses to guess") and the learner's practice goal. It's the riskiest logic and everything else only displays it. This is the one allowed layer-only slice: it independently proves the critical risk and leaves runnable evidence. Project scaffold (Vite, React, TS 6.0.3 strict, Tailwind, Vitest, ESLint, SheetJS from the CDN tarball) is bootstrapped here.
+  PRD ref: `prd.md > Checking Students`, `prd.md > Reading the File`, `prd.md > Product Decisions`
+  Spec ref: `spec.md > Engine — Types`, `spec.md > Engine — Parse`, `spec.md > Engine — Normalise`, `spec.md > Engine — Columns`, `spec.md > Engine — Evaluate`, `spec.md > Engine — Review Detection`, `spec.md > Engine — Group`, `spec.md > Engine — Invariant`, `spec.md > Engine — Rule Sets`, `spec.md > Engine — Check Pipeline`, `spec.md > Stack`
+  Build: Scaffold the project per `spec.md > File Structure`; commit `data/source/student-mat.csv`; implement every `src/engine/` module with co-located Vitest tests and `tests/fixtures/` (.csv and generated .xlsx: blank rows above header, duplicate/blank headers, leading-zero IDs, dates, percent format, multi-sheet, empty, headers-only); add `npm run check`.
+  Verify (mechanical): `npm run typecheck`, `npm run lint`, `npm test` all pass; engine run on `student-mat.csv` with the demo rules prints counts that add up to the row total; tests cover strict margin boundary (9 decided, 9.6/10/10.4 review, 11 decided).
+  Learner check: Run `npm test` and read the test names in `src/engine/` — each PRD edge case should have a test you recognise.
+  Commit: `Add tested eligibility engine`
+
+- [ ] **2. You can drop a file and see what Rollcheck read**
+  Becomes usable: The File screen (drop zone, privacy line) accepts .csv/.xlsx and moves to Rules showing file name, sheet picker, row/column counts, ID/name pickers, renamed-column notices and a 5-row typed preview. Wrong type, empty and unreadable files show their messages. Big files show progress.
+  Why now: First real path through the browser, and it carries the worker risk (Web Worker + SheetJS + Vite bundling) early.
+  PRD ref: `prd.md > The Core Journey` (steps 1–3), `prd.md > Screens and Layout`, `prd.md > Reading the File`, `prd.md > States and Boundaries`
+  Spec ref: `spec.md > Worker`, `spec.md > IO`, `spec.md > App State`, `spec.md > UI — Shell`, `spec.md > UI — File Stage`, `spec.md > UI — Rules Stage`, `spec.md > Look and Feel`
+  Build: Worker + client with in-thread fallback, reducer, shell (header, stepper, theme tokens, fonts), DropZone, FileSummary, SheetPicker, ColumnPickers, PreviewTable, notices.
+  Verify (mechanical): Production build succeeds; dev server starts; headless browser screenshot of File and Rules stages after loading `student-mat.csv` and a multi-sheet .xlsx fixture; a generated 60,000-row CSV loads with progress and correct count.
+  Learner check: Run `npm run dev`, open http://localhost:5173, drop `data/source/student-mat.csv`, and check the counts (395 rows, 33 columns) and preview.
+  Commit: `Read files in a worker and show summary`
+
+- [ ] **3. You can set rules and see every student checked**
+  Becomes usable: Rule builder (1–5 rules, six conditions, margin, add/remove/reorder by keyboard, "Also match duplicates on", mostly-non-numeric warning) → Check students → Results shows "N of N students checked", the three counters and a basic table with Status and Reason, Needs review first. Invariant failure shows the error.
+  Why now: This is the kernel visible end to end — the first moment the product's promise can be seen on screen. Early feedback here can still shape the results design.
+  PRD ref: `prd.md > Building Rules`, `prd.md > Checking Students`, `prd.md > The Core Journey` (steps 4–5)
+  Spec ref: `spec.md > UI — Rules Stage`, `spec.md > Engine — Check Pipeline`, `spec.md > Worker`, `spec.md > UI — Results Stage`
+  Build: RuleBuilder/RuleRow, validation and disabled states, check through the worker, CheckedLine, Counters, a first ResultsTable, Change rules / Start over.
+  Verify (mechanical): Build passes; RTL test: load fixture → add rule → check → counters add up to total; headless screenshot of Rules and Results.
+  Learner check: Drop `student-mat.csv`, add "absences is at most 10" and "G3 is at least 10", click Check students, and see whether the reasons read the way you'd want staff to read them.
+  Commit: `Add rule builder and check students`
+
+- [ ] **4. You can explore results: filter, search, open a student**
+  Becomes usable: Counters filter the table, search, rule impact summary, virtualised table that stays smooth on 50k rows, row detail panel with every original cell, each rule's outcome and every reason (Esc closes, focus returns).
+  Why now: Completes the results screen on top of the working check; depends on slice 3.
+  PRD ref: `prd.md > Reviewing Results`, `prd.md > Screens and Layout` (3 · Results)
+  Spec ref: `spec.md > UI — Results Stage`, `spec.md > Engine — Group`
+  Build: Counter filtering (aria-pressed), SearchBox, RuleImpact, TanStack Virtual table, RowDetailPanel with focus trap, empty filter/search states.
+  Verify (mechanical): RTL tests for filter count = counter, search no-match message, detail panel shows all columns and closes on Esc; 60k-row check renders and scrolls in headless browser.
+  Learner check: Click "Needs review", search a student ID, open a row, press Esc.
+  Commit: `Add results filtering, search and row detail`
+
+- [ ] **5. You can take results away: download, rule sets, print**
+  Becomes usable: Download .xlsx (Results, Rules used, Needs review), Save rule set .json, Load rule set with missing-column remap, Print view.
+  Why now: Closes the core loop (`scope.md > The Core Loop`: download the result) and the next-cycle reuse.
+  PRD ref: `prd.md > Saving and Sharing Results`, `prd.md > States and Boundaries`
+  Spec ref: `spec.md > IO`, `spec.md > Engine — Rule Sets`, `spec.md > Look and Feel` (print)
+  Build: exportXlsx, download helper, LoadRuleSet + RemapColumns, Save rule set, print CSS + PrintHeader.
+  Verify (mechanical): Unit test reads the exported workbook back with SheetJS: 3 sheets, raw values unchanged, counts match; rule-set round trip reproduces counts; headless print-to-PDF shows no buttons.
+  Learner check: Download results and open the file in Excel; save the rule set, Start over, load it back.
+  Commit: `Add xlsx export, rule sets and print`
+
+- [ ] **6. One click shows the whole story with sample data**
+  Becomes usable: "Try sample data" loads the bundled ~120-row demo sheet with demo rules and match columns pre-filled; every documented trap lands in Needs review with its reason.
+  Why now: The demo video depends on it, and it's the end-to-end proof of `scope.md > What "Working" Looks Like`. Needs the full journey to exist first.
+  PRD ref: `prd.md > Sample Data`, `prd.md > Checking Students`
+  Spec ref: `spec.md > Sample Data`, `spec.md > External Services and Dependencies`
+  Build: `scripts/make-sample.mjs`, generated `public/sample/rollcheck-sample.csv`, sampleRules, the button, `DATA_SOURCES.md` with credit, licence, changes and every trap.
+  Verify (mechanical): Test loads the generated sample through the engine and asserts each trap row's group and reason, plus counts total 120; RTL test for the button flow.
+  Learner check: Start over → Try sample data → Check students, and find each trap in Needs review.
+  Commit: `Add sample data with documented traps`
+
+- [ ] **7. It feels finished: dark mode, every state, accessibility**
+  Becomes usable: Theme toggle with re-tuned dark palette, every empty/loading/error state designed, keyboard-only journey, visible focus, aria-live counts, AA contrast, reduced motion, no breakage at phone width.
+  Why now: Polish once behaviour is settled, so it isn't redone. Judged under Design.
+  PRD ref: `prd.md > Look and Feel`, `prd.md > States and Boundaries`
+  Spec ref: `spec.md > Look and Feel`, `spec.md > UI — Shell`
+  Build: Dark tokens + toggle, state polish, focus styles, contrast fixes, responsive pass, remaining RTL main-flow tests.
+  Verify (mechanical): Full `npm run check`; headless screenshots light/dark at 1280px and 390px; contrast check of status colours on surfaces; keyboard-only RTL flow test.
+  Learner check: Toggle dark mode, narrow the window to phone width, and do the whole journey with only the keyboard.
+  Commit: `Polish states, dark mode and accessibility`
+
+- [ ] **8. Anyone can understand, run and trust the repo**
+  Becomes usable: README (what, who, screenshots, run, test, engine architecture, data + licence + traps, limitations, "Built with the Devpost Learn Skill Pack using Claude Code"), CI workflow running the gates on push, optional Pages deploy workflow.
+  Why now: Submission needs a public repo reviewers can read without running anything.
+  PRD ref: `prd.md > What We're Building`
+  Spec ref: `spec.md > Where It Runs and How Someone Tries It`, `spec.md > External Services and Dependencies`
+  Build: README.md with screenshots, `.github/workflows/ci.yml`, `.github/workflows/pages.yml`, `vite base './'`.
+  Verify (mechanical): `npm run check` passes locally; workflows are valid YAML and mirror the local scripts; `npm run build` output opens via `npm run preview`.
+  Learner check: Read the README top to bottom as if you were a judge.
+  Commit: `Add README and CI`
+
+## Hands-on Checkpoints
+
+- [ ] Early usable behavior explored — after slice 3 (first real check on screen)
+- [ ] Final kick-the-tires exploration and feedback completed
+
+## Final Review
+
+- [ ] Final review complete — feedback resolved and learner confirms ready to ship
+
+## Code Tour and App Map
+
+- [ ] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
+- [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
+- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+
+Activity and evidence:
+Route and stops:
+Edit outcome:
+Reflection:
+Activity mode:
+
+## Revisions
+- `classifyCell` lives in `src/engine/classify.ts` and file reading entry point in `src/engine/read.ts` (not `normalise.ts`) — keeps the never-guess rule in one small, separately tested module.
+- Edge-case .xlsx/.csv fixtures are generated inside the tests (`src/engine/test-helpers.ts`) instead of stored in `tests/fixtures/` — same coverage, no binary files to keep in sync.
+- A number stored as text ("75 %", "10 ") always goes to Needs review, even when its parsed value fails — the PRD says "parse AND flag Needs review", so such a value never decides on its own; the reason adds what the parsed value would mean.
+- Excel's plain `0` number format was being mistaken for zero-padding and showed 74.6 as "75" — caught by the slice-1 test; only formats of two or more zeros now count as padding.
