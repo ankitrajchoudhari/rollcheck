@@ -29,17 +29,17 @@ async function setRule(user: ReturnType<typeof userEvent.setup>, n: number, colu
 describe('main flow', () => {
   it('reads a file, checks the demo rules, and the counters add up', async () => {
     const user = await openFile(UCI())
-    expect(await screen.findByText('First 5 rows')).toBeInTheDocument()
-    expect(screen.getByText('395')).toBeInTheDocument()
+    expect(await screen.findByText('Your file, as read')).toBeInTheDocument()
+    expect(screen.getAllByText('395').length).toBeGreaterThan(0)
 
     await setRule(user, 1, 'absences', 'is at most', '10')
     await user.click(screen.getByRole('button', { name: 'Add rule' }))
     await setRule(user, 2, 'G3', 'is at least', '10')
-    await user.click(screen.getByRole('button', { name: 'Check students' }))
+    await user.click(screen.getByRole('button', { name: /Check students/ }))
 
     expect(await screen.findByRole('heading', { name: '395 of 395 students checked' })).toBeInTheDocument()
     const counters = within(screen.getByRole('group', { name: 'Filter by group' }))
-    const n = (label: string) => Number(counters.getByRole('button', { name: new RegExp(label) }).textContent!.match(/[\d,]+/)![0].replace(',', ''))
+    const n = (label: string) => Number(counters.getByRole('button', { name: new RegExp(label) }).querySelector('[data-count]')!.getAttribute('data-count'))
     expect(n('^Eligible') + n('Not eligible') + n('Needs review')).toBe(395)
     expect(n('^Eligible')).toBe(169)
     expect(n('Needs review')).toBe(60)
@@ -54,14 +54,14 @@ describe('main flow', () => {
 
   it('explains an incomplete rule instead of checking', async () => {
     const user = await openFile(csv('a.csv', 'ID,Score\nS1,5\n'))
-    await screen.findByText('First 5 rows')
-    await user.click(screen.getByRole('button', { name: 'Check students' }))
+    await screen.findByText('Your file, as read')
+    await user.click(screen.getByRole('button', { name: /Check students/ }))
     expect(await screen.findByRole('alert')).toHaveTextContent('Rule 1: Choose a column.')
   })
 
   it('limits rules to five and can remove one again', async () => {
     const user = await openFile(csv('a.csv', 'ID,Score\nS1,5\n'))
-    await screen.findByText('First 5 rows')
+    await screen.findByText('Your file, as read')
     const add = screen.getByRole('button', { name: 'Add rule' })
     for (let i = 0; i < 4; i++) await user.click(add)
     expect(add).toBeDisabled()
@@ -72,7 +72,7 @@ describe('main flow', () => {
 
   it('hides the value for "is not blank" and shows the margin only for number rules', async () => {
     const user = await openFile(csv('a.csv', 'ID,Score\nS1,5\n'))
-    await screen.findByText('First 5 rows')
+    await screen.findByText('Your file, as read')
     expect(screen.getByText('of the limit as Needs review')).toBeInTheDocument()
     await user.selectOptions(screen.getByLabelText('Condition'), 'is not blank')
     expect(screen.queryByLabelText(/Limit|Value/)).not.toBeInTheDocument()
@@ -81,7 +81,7 @@ describe('main flow', () => {
 
   it('moves rules with the keyboard', async () => {
     const user = await openFile(csv('a.csv', 'ID,Score\nS1,5\n'))
-    await screen.findByText('First 5 rows')
+    await screen.findByText('Your file, as read')
     await user.selectOptions(screen.getByLabelText('Column', { selector: '#rule-1-col' }), 'ID')
     await user.click(screen.getByRole('button', { name: 'Add rule' }))
     await user.selectOptions(screen.getByLabelText('Column', { selector: '#rule-2-col' }), 'Score')

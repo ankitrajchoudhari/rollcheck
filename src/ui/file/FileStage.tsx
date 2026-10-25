@@ -10,6 +10,13 @@ interface Props {
   onSample?: (() => void) | undefined
 }
 
+const EXAMPLES = [
+  { id: 'S014', icon: CircleCheck, label: 'Eligible', text: 'text-ok', mark: 'text-ok', reason: 'Meets the rule.' },
+  { id: 'S017', icon: CircleX, label: 'Not eligible', text: 'text-no', mark: 'text-no', reason: 'Attendance is 72, below the 75 limit.' },
+  { id: 'S052', icon: TriangleAlert, label: 'Needs review', text: 'text-review', mark: 'text-review-mark', reason: 'Attendance is 74.6, within 1 of the 75 limit. Confirm before deciding.' },
+  { id: 'S088', icon: TriangleAlert, label: 'Needs review', text: 'text-review', mark: 'text-review-mark', reason: "Attendance is 'AB', not a number. Check manually." },
+]
+
 export function FileStage({ busy, error, onFile, onSample }: Props) {
   const input = useRef<HTMLInputElement>(null)
   const [over, setOver] = useState(false)
@@ -91,25 +98,28 @@ export function FileStage({ busy, error, onFile, onSample }: Props) {
         </div>
       </div>
 
-      <aside aria-label="How students are sorted" className="self-start rounded-md border border-line bg-surface">
-        <p className="eyebrow border-b border-line px-4 py-2.5">Every row lands in one group</p>
-        <ul className="divide-y divide-line text-sm">
-          <li className="flex gap-3 px-4 py-3">
-            <CircleCheck size={16} className="mt-0.5 shrink-0 text-ok" aria-hidden="true" />
-            <span><b className="font-medium text-ok">Eligible</b> — meets every rule.</span>
-          </li>
-          <li className="flex gap-3 px-4 py-3">
-            <CircleX size={16} className="mt-0.5 shrink-0 text-no" aria-hidden="true" />
-            <span><b className="font-medium text-no">Not eligible</b> — clearly fails a rule.</span>
-          </li>
-          <li className="flex gap-3 px-4 py-3">
-            <TriangleAlert size={16} className="mt-0.5 shrink-0 text-review-mark" aria-hidden="true" />
-            <span>
-              <b className="font-medium text-review">Needs review</b> — too close to call, not a number, blank, or a possible duplicate. Never guessed.
-            </span>
-          </li>
+      <aside aria-label="Example result" className="self-start overflow-hidden rounded-md border border-line bg-surface">
+        <p className="eyebrow border-b border-line px-4 py-2.5">What you get back</p>
+        <p className="px-4 pt-3 text-xs text-muted">
+          Rule: <span className="font-mono text-ink">Attendance is at least 75</span>
+        </p>
+        <ul className="divide-y divide-line px-4 pb-1 text-xs">
+          {EXAMPLES.map((e) => {
+            const Icon = e.icon
+            return (
+              <li key={e.id} className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-0.5 py-2.5">
+                <span className="tnum font-mono text-muted">{e.id}</span>
+                <span className={`flex items-center gap-1.5 font-medium ${e.text}`}>
+                  <Icon size={14} className={e.mark} aria-hidden="true" />
+                  {e.label}
+                </span>
+                <span />
+                <span className="text-ink">{e.reason}</span>
+              </li>
+            )
+          })}
         </ul>
-        <p className="border-t border-line px-4 py-2.5 text-xs text-muted">The counts always add up to the rows in your file.</p>
+        <p className="border-t border-line bg-bg/60 px-4 py-2.5 text-xs text-muted">Every row lands in exactly one group. The counts always add up.</p>
       </aside>
     </section>
   )

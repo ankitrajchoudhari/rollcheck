@@ -9,7 +9,7 @@ export class NoRowsError extends Error {
   }
 }
 
-const isBlankRow = (row: RawCell[]) => row.every((c) => c.raw.trim() === '')
+export const isBlankRow = (row: RawCell[]) => row.every((c) => c.raw.trim() === '')
 
 /** Make header names usable as rule targets: no blanks, no duplicates. */
 export function uniqueHeaders(names: string[]): { headers: string[]; notices: Notice[] } {

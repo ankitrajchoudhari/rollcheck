@@ -91,7 +91,7 @@ Build mode: fast (chosen by the learner in advance)
 
 ## Hands-on Checkpoints
 
-- [ ] Early usable behavior explored — after slice 3 (first real check on screen)
+- [ ] Early usable behavior explored — after slice 3 (first real check on screen). Feedback received: whole header in one column, layout misaligned and not responsive, design dull and hard to understand. Fixed; waiting for the learner to retry.
 - [ ] Final kick-the-tires exploration and feedback completed
 
 ## Final Review
@@ -116,3 +116,5 @@ Activity mode:
 - A number stored as text ("75 %", "10 ") always goes to Needs review, even when its parsed value fails — the PRD says "parse AND flag Needs review", so such a value never decides on its own; the reason adds what the parsed value would mean.
 - Excel's plain `0` number format was being mistaken for zero-padding and showed 74.6 as "75" — caught by the slice-1 test; only formats of two or more zeros now count as padding.
 - CSV read progress is shown as a percentage of the file ("Reading file… 62%") rather than "32,000 of 51,200" rows — the row total of a CSV is unknown until it has been read; checking progress does show "N of N".
+- A semicolon CSV opened in Excel and re-saved arrives with every line in column A (seen at the slice-3 checkpoint) — the engine now detects a single filled column whose header holds a delimiter, splits it, and tells the user (`splitSingleColumn` in `src/engine/read.ts`).
+- Rules screen redesigned after checkpoint feedback ("not aligned, dull, not responsive, not understandable") — rules as cards on a fixed grid (no long option can widen a field), a live plain-English "Your check" panel with the Check button beside the rules from 900px and right under them on narrow screens, titled register-style sections, a worked example on the File screen, a proportion bar on Results, and each stage opens scrolled to the top. Same `prd.md > Look and Feel` direction, applied more fully.

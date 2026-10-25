@@ -66,6 +66,13 @@ describe('reading .csv', () => {
     expect(() => read('a.csv', text)).toThrow('This file has no student rows.')
   })
 
+  it('splits a CSV whose every line was wrapped in quotes by a re-save', () => {
+    const t = read('a.csv', '"school;name;G3"\n"""GP"";""Ana"";10"\n"""MS"";""Rui"";12"\n')
+    expect(t.headers).toEqual(['school', 'name', 'G3'])
+    expect(t.rows[1]!.map((c) => c.raw)).toEqual(['MS', 'Rui', '12'])
+    expect(t.notices[0]!.kind).toBe('split-column')
+  })
+
   it('reads 60,000 rows and reports progress', () => {
     const lines = ['ID,Score']
     for (let i = 0; i < 60000; i++) lines.push(`S${i},${i % 20}`)
@@ -134,6 +141,25 @@ describe('reading .xlsx', () => {
     const { table } = readFileToTable('a.xlsx', bytes)
     expect(table.headers).toEqual(['ID', 'Score'])
     expect(table.rowNumbers).toEqual([4])
+  })
+
+  it('splits a semicolon CSV that Excel squeezed into one column', () => {
+    // What Excel produces when it opens student-mat.csv with comma settings and saves as .xlsx.
+    const lines = readFileSync('data/source/student-mat.csv', 'utf8').trim().split(/\r?\n/)
+    const squeezed = lines.map((l, i) => [i === 0 ? l : l.replace(/^"GP"|^"MS"/, (m) => m.slice(1, -1))])
+    const { table } = readFileToTable('student-mat.xlsx', xlsxOf({ 'student-mat': squeezed }))
+    expect(table.headers).toHaveLength(33)
+    expect(table.headers[0]).toBe('school')
+    expect(table.rows).toHaveLength(395)
+    expect(table.rows[0]![0]!.raw).toBe('GP')
+    expect(table.rows[0]![1]!.raw).toBe('F')
+    expect(table.notices[0]!.message).toBe('Everything was in one column, separated by semicolons. Rollcheck split it into 33 columns.')
+  })
+
+  it('leaves a genuine single-column sheet alone', () => {
+    const { table } = readFileToTable('a.xlsx', xlsxOf({ S: [['Roll No'], ['S1'], ['S2']] }))
+    expect(table.headers).toEqual(['Roll No'])
+    expect(table.notices).toEqual([])
   })
 
   it('refuses a sheet with headers only', () => {

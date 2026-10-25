@@ -9,7 +9,7 @@ export function useColumnTypes(table: Table): ColumnType[] {
 
 export function FileSummary({ table, sheets, onSheet, disabled }: { table: Table; sheets: string[]; onSheet: (s: string) => void; disabled: boolean }) {
   return (
-    <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-line bg-line sm:grid-cols-4">
+    <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-line bg-line sm:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
       <div className="bg-surface px-4 py-3">
         <dt className="label">File</dt>
         <dd className="mt-0.5 truncate font-mono text-sm" title={table.fileName}>{table.fileName}</dd>
@@ -20,7 +20,7 @@ export function FileSummary({ table, sheets, onSheet, disabled }: { table: Table
         </dt>
         <dd className="mt-0.5">
           {sheets.length > 1 ? (
-            <select id="sheet" className="field w-full py-0.5" value={table.sheetName} disabled={disabled} onChange={(e) => onSheet(e.target.value)}>
+            <select id="sheet" className="field w-full min-w-0 py-0.5" value={table.sheetName} disabled={disabled} onChange={(e) => onSheet(e.target.value)}>
               {sheets.map((s) => (
                 <option key={s}>{s}</option>
               ))}
@@ -52,10 +52,6 @@ export function PreviewTable({ table, types }: { table: Table; types: ColumnType
   const rows = table.rows.slice(0, 5)
   return (
     <div>
-      <div className="mb-2 flex items-baseline justify-between gap-4">
-        <h2 className="text-base font-semibold">First 5 rows</h2>
-        <p className="text-xs text-muted">Values exactly as in the file. <span className="rounded-sm bg-review-soft px-1 text-review">mixed</span> columns hold numbers and text.</p>
-      </div>
       <div className="overflow-x-auto rounded-md border border-line bg-surface">
         <table className="w-full border-collapse text-xs">
           <thead>
@@ -98,17 +94,17 @@ interface PickerProps {
 export function ColumnPickers({ headers, idColumn, nameColumn, matchColumns, onChange }: PickerProps) {
   const free = headers.filter((h) => !matchColumns.includes(h) && h !== nameColumn)
   return (
-    <div className="grid gap-4 md:grid-cols-[1fr_1fr_2fr]">
+    <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,2fr)]">
       <div className="flex flex-col gap-1">
         <label htmlFor="id-col" className="label">ID column</label>
-        <select id="id-col" className="field" value={idColumn} onChange={(e) => onChange({ idColumn: e.target.value })}>
+        <select id="id-col" className="field w-full min-w-0" value={idColumn} onChange={(e) => onChange({ idColumn: e.target.value })}>
           <option value="">None</option>
           {headers.map((h) => <option key={h}>{h}</option>)}
         </select>
       </div>
       <div className="flex flex-col gap-1">
         <label htmlFor="name-col" className="label">Name column</label>
-        <select id="name-col" className="field" value={nameColumn} onChange={(e) => onChange({ nameColumn: e.target.value })}>
+        <select id="name-col" className="field w-full min-w-0" value={nameColumn} onChange={(e) => onChange({ nameColumn: e.target.value })}>
           <option value="">None</option>
           {headers.map((h) => <option key={h}>{h}</option>)}
         </select>
@@ -131,7 +127,7 @@ export function ColumnPickers({ headers, idColumn, nameColumn, matchColumns, onC
           ))}
           <select
             id="match-add"
-            className="field py-1 text-xs"
+            className="field max-w-full min-w-0 py-1 text-xs"
             value=""
             onChange={(e) => e.target.value && onChange({ matchColumns: [...matchColumns, e.target.value] })}
           >

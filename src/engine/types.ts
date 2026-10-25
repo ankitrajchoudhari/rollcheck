@@ -22,7 +22,7 @@ export interface RawCell {
 }
 
 export interface Notice {
-  kind: 'renamed-column' | 'header-row' | 'percent-format'
+  kind: 'renamed-column' | 'header-row' | 'percent-format' | 'split-column'
   message: string
 }
 
