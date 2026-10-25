@@ -1,5 +1,5 @@
 import { RotateCcw, Search, SlidersHorizontal, X } from 'lucide-react'
-import { useDeferredValue, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useDeferredValue, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { flushSync } from 'react-dom'
 import type { CheckResult, Rule, Status, Table } from '../../engine/core'
 import { describeRule } from '../rules/CheckPanel'
@@ -148,6 +148,19 @@ function usePrinting() {
 export function ResultsStage(p: Props) {
   const { table, result, rules, filter } = p
   const printing = usePrinting()
+  const searchBox = useRef<HTMLInputElement>(null)
+  // Press "/" anywhere on the results to jump to search, as in most office tools.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null
+      if (e.key === '/' && !(t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) {
+        e.preventDefault()
+        searchBox.current?.focus()
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [])
   const query = useDeferredValue(p.search.trim().toLowerCase())
   const haystack = useMemo(() => table.rows.map((cells) => cells.map((c) => c.raw).join('\u0001').toLowerCase()), [table])
   const shown = useMemo(
@@ -193,17 +206,36 @@ export function ResultsStage(p: Props) {
               <X size={14} aria-hidden="true" /> Show all
             </button>
           )}
-          <div className="relative w-full sm:ml-auto sm:w-72">
-            <Search size={16} className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-muted" aria-hidden="true" />
+          <div className="relative w-full sm:ml-auto sm:w-80">
+            <Search size={16} className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted" aria-hidden="true" />
             <label htmlFor="search" className="sr-only">Search students</label>
             <input
+              ref={searchBox}
               id="search"
-              type="search"
-              className="field w-full pl-8"
+              type="text"
+              className="field w-full pr-16 pl-9"
               placeholder="Search ID, name or any value"
               value={p.search}
+              autoComplete="off"
+              spellCheck={false}
               onChange={(e) => p.onSearch(e.target.value)}
+              onKeyDown={(e) => e.key === 'Escape' && p.search && (e.stopPropagation(), p.onSearch(''))}
             />
+            {p.search ? (
+              <button
+                type="button"
+                className="absolute top-1/2 right-1.5 -translate-y-1/2 rounded-sm p-1 text-muted hover:bg-bg hover:text-ink"
+                aria-label="Clear search"
+                onClick={() => {
+                  p.onSearch('')
+                  searchBox.current?.focus()
+                }}
+              >
+                <X size={16} aria-hidden="true" />
+              </button>
+            ) : (
+              <span className="kbd pointer-events-none absolute top-1/2 right-2.5 hidden -translate-y-1/2 sm:inline" aria-hidden="true">/</span>
+            )}
           </div>
           <p className="w-full text-xs text-muted">Needs review first, then Not eligible, then Eligible. Click a row to see every cell and reason.</p>
         </header>
@@ -214,7 +246,7 @@ export function ResultsStage(p: Props) {
               <>
                 No students match &lsquo;{p.search.trim()}&rsquo;.{' '}
                 <button type="button" className="text-accent underline underline-offset-2" onClick={() => p.onSearch('')}>
-                  Clear search
+                  Show all students
                 </button>
               </>
             ) : (

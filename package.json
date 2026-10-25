@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "demo": "tsx scripts/demo-counts.ts",
     "sample": "node scripts/make-sample.mjs",
-    "check": "npm run typecheck && npm run lint && npm run test && vite build"
+    "check": "npm run typecheck && npm run lint && npm run test && vite build",
+    "compare": "tsx scripts/make-excel-comparison.mjs"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.3.0",

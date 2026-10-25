@@ -20,7 +20,7 @@ export function FileSummary({ table, sheets, onSheet, disabled }: { table: Table
         </dt>
         <dd className="mt-0.5">
           {sheets.length > 1 ? (
-            <select id="sheet" className="field w-full min-w-0 py-0.5" value={table.sheetName} disabled={disabled} onChange={(e) => onSheet(e.target.value)}>
+            <select id="sheet" className="field field-sm w-full min-w-0" value={table.sheetName} disabled={disabled} onChange={(e) => onSheet(e.target.value)}>
               {sheets.map((s) => (
                 <option key={s}>{s}</option>
               ))}
@@ -113,7 +113,7 @@ export function ColumnPickers({ headers, idColumn, nameColumn, matchColumns, onC
         <label htmlFor="match-add" className="label">Also match duplicates on</label>
         <div className="flex flex-wrap items-center gap-1.5">
           {matchColumns.map((c) => (
-            <span key={c} className="inline-flex items-center gap-1 rounded-sm border border-line-strong bg-surface py-0.5 pr-0.5 pl-2 text-xs">
+            <span key={c} className="inline-flex min-h-8 items-center gap-1 rounded-sm border border-accent/40 bg-accent-soft py-0.5 pr-0.5 pl-2.5 text-xs font-medium">
               {c}
               <button
                 type="button"
@@ -127,7 +127,7 @@ export function ColumnPickers({ headers, idColumn, nameColumn, matchColumns, onC
           ))}
           <select
             id="match-add"
-            className="field max-w-full min-w-0 py-1 text-xs"
+            className="field field-sm max-w-full min-w-0"
             value=""
             onChange={(e) => e.target.value && onChange({ matchColumns: [...matchColumns, e.target.value] })}
           >

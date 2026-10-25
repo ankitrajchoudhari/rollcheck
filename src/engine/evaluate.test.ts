@@ -103,7 +103,7 @@ describe('equals / is not / is one of', () => {
     expect(splitOptions('74,6')).toEqual(['74,6'])
     const r = rule('Category', 'oneOf', 'GEN;SC')
     expect(ev(r, 'sc').result).toBe('pass')
-    expect(ev(r, 'OBC').reasons).toEqual(["Category is 'OBC', not one of 'GEN' and 'SC'."])
+    expect(ev(r, 'OBC').reasons).toEqual(["Category is 'OBC', not one of: 'GEN', 'SC'."])
   })
 })
 

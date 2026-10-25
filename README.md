@@ -49,6 +49,21 @@ Duplicates are **flagged, never merged**. Nothing in your data is changed.
 
 **https://rollcheck-six.vercel.app** — click **Try sample data**, then **Check students**. Everything runs in your browser.
 
+## Why not just an Excel formula?
+
+The obvious formula, `=IF(AND(absences<=10, G3>=10), "Eligible", "Not eligible")`, gives a confident answer for every row — including the ones it cannot actually judge. Excel compares text as larger than any number and treats an empty cell as 0, so on the sample sheet:
+
+| Row | Cell | Formula says | What is actually true | Rollcheck |
+|---|---|---|---|---|
+| 67 | G3 = `9,8` | Eligible | 9.8 is below 10 | Needs review — *uses a comma* |
+| 32 | absences blank | Eligible | the value is missing | Needs review — *absences is blank* |
+| 44 | absences = `10 ` | Not eligible | 10 meets "at most 10"; only a stray space | Needs review — *number stored as text* |
+| 22 | absences = `AB` | Not eligible | nobody checked what AB means | Needs review — *not a number* |
+| 72 & 120 | same student, two spellings | Eligible, twice | one student counted twice | Needs review — *possible duplicate* |
+| 82 & 121 | one ID used twice | Eligible, twice | two different students share an ID | Needs review — *appears twice* |
+
+A formula also gives no reason, does not prove the counts add up, and must be rewritten correctly by every office for every rule. [`docs/excel-comparison.xlsx`](docs/excel-comparison.xlsx) contains the same 120 students with that formula in a column next to Rollcheck's result, so you can open it in Excel and compare (`npm run compare` rebuilds it).
+
 ## Run it locally
 
 Requires [Node.js](https://nodejs.org/) 22 or newer.
@@ -67,6 +82,7 @@ Open http://localhost:5173 and click **Try sample data**, then **Check students*
 | `npm run check` | Type-check, lint, test and build — the same gates as CI |
 | `npm run demo` | Print the demo-rule counts for the UCI data from the command line |
 | `npm run sample` | Rebuild the sample sheet from `data/source/student-mat.csv` |
+| `npm run compare` | Rebuild `docs/excel-comparison.xlsx` (formula vs Rollcheck on the sample) |
 | `npm run build` | Production build into `dist/` (static files, no server needed) |
 
 ## How it works

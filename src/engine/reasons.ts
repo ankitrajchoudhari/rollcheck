@@ -24,7 +24,7 @@ export const reasons = {
   notEqual: (col: string, cell: Cell, expected: string) => `${col} is ${showValue(cell)}, not '${expected}'.`,
   excluded: (col: string, cell: Cell) => `${col} is ${showValue(cell)}, which is not allowed.`,
   notOneOf: (col: string, cell: Cell, options: string[]) =>
-    `${col} is ${showValue(cell)}, not one of ${list(options.map((o) => `'${o}'`))}.`,
+    `${col} is ${showValue(cell)}, not one of: ${options.map((o) => `'${o}'`).join(', ')}.`,
   meetsAll: (n: number) => (n === 1 ? 'Meets the rule.' : `Meets all ${n} rules.`),
   duplicateId: (col: string, id: string, rows: number[]) =>
     `${col} ${id} appears ${rows.length === 2 ? 'twice' : `${rows.length} times`} (rows ${list(rows.map(String))}).`,

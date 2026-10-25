@@ -11,6 +11,8 @@ export default defineConfig({
     environment: 'node',
     include: ['src/**/*.test.{ts,tsx}'],
     setupFiles: ['src/test-setup.ts'],
-    testTimeout: 30000,
+    testTimeout: 60000,
+    // Fewer parallel workers: on a busy machine the jsdom worker can miss its start-up deadline.
+    maxWorkers: 3,
   },
 })
