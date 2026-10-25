@@ -45,7 +45,7 @@ Duplicates are **flagged, never merged**. Nothing in your data is changed.
 
 ## Live demo
 
-Deployed with GitHub Pages: *link added at publish time*.
+Deployed on Vercel: *link added at publish time*.
 
 ## Run it locally
 
@@ -93,7 +93,7 @@ A row with any clear failure is **Not eligible**; otherwise any flag makes it **
 
 Other details the engine handles: blank rows above the header, blank or repeated column names (renamed and reported), leading-zero IDs and dates kept as displayed, cells Excel shows rounded (the stored value is used), percent-formatted cells, multi-sheet workbooks, and semicolon CSVs that Excel squeezed into a single column.
 
-**Tests:** 138 Vitest tests — every condition, the margin boundary, every edge case, duplicates, rule sets, the invariant, the exported workbook read back from bytes, every trap in the sample data, and React Testing Library tests for the main flow, including a keyboard-only run. CI runs type-check, lint, tests and build on every push.
+**Tests:** 138 Vitest tests — every condition, the margin boundary, every edge case, duplicates, rule sets, the invariant, the exported workbook read back from bytes, every trap in the sample data, and React Testing Library tests for the main flow, including a keyboard-only run. GitHub Actions CI runs type-check, lint, tests and build on every push.
 
 **Stack:** Vite, React, TypeScript (strict), Tailwind CSS, [SheetJS](https://docs.sheetjs.com/) (installed from the official SheetJS CDN), [Papa Parse](https://www.papaparse.com/), [TanStack Virtual](https://tanstack.com/virtual), lucide icons, IBM Plex via Fontsource. No backend, no accounts, no API keys.
 
