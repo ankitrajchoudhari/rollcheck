@@ -90,4 +90,39 @@ describe('main flow', () => {
     expect(screen.getByLabelText('Column', { selector: '#rule-1-col' })).toHaveValue('Score')
     expect(screen.getByLabelText('Column', { selector: '#rule-2-col' })).toHaveValue('ID')
   })
+
+  it('filters by counter, searches, and opens a student with every cell', async () => {
+    const user = await openFile(
+      csv(
+        'a.csv',
+        ['Roll No,Student Name,DOB,Attendance,Fees', 'S1,Ana Silva,2004-01-01,80,Cleared', 'S2,Rui Costa,2004-02-02,AB,Cleared', 'S3,R. Costa,2004-02-02,90,Cleared', 'S4,Eva Lima,2004-03-03,60,Cleared'].join('\n'),
+      ),
+    )
+    await screen.findByText('Your file, as read')
+    // ID, name and DOB are detected from the headers.
+    expect(screen.getByLabelText('ID column')).toHaveValue('Roll No')
+    expect(screen.getByLabelText('Name column')).toHaveValue('Student Name')
+    expect(screen.getByRole('button', { name: 'Stop matching on DOB' })).toBeInTheDocument()
+    await setRule(user, 1, 'Attendance', 'is at least', '75')
+    await user.click(screen.getByRole('button', { name: /Check students/ }))
+    await screen.findByRole('heading', { name: '4 of 4 students checked' })
+
+    await user.click(screen.getByRole('button', { name: /^Needs review/ }))
+    expect(screen.getByText(/Showing 2 of 4/)).toBeInTheDocument()
+
+    await user.type(screen.getByLabelText('Search students'), 'zzz')
+    expect(await screen.findByText(/No students match/)).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Clear search' }))
+
+    await user.click(screen.getByRole('button', { name: 'Show all' }))
+    expect(screen.getByText(/Showing 4 of 4/)).toBeInTheDocument()
+
+    await user.click(screen.getByRole('row', { name: 'Row 3, open details' }))
+    const dialog = await screen.findByRole('dialog')
+    expect(within(dialog).getByText('All 5 cells, exactly as in the file')).toBeInTheDocument()
+    expect(within(dialog).getByText("Attendance is 'AB', not a number. Check manually.")).toBeInTheDocument()
+    expect(within(dialog).getByText(/Possible duplicate of row 4/)).toBeInTheDocument()
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
 })

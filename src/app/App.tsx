@@ -161,7 +161,11 @@ export function App({ engine: given }: { engine?: EngineClient }) {
             idColumn={state.checked.idColumn}
             nameColumn={state.checked.nameColumn}
             filter={state.filter}
+            search={state.search}
+            selectedRow={state.selectedRow}
             onFilter={(filter) => dispatch({ type: 'filter', filter })}
+            onSearch={(search) => dispatch({ type: 'search', search })}
+            onOpenRow={(index) => dispatch({ type: 'openRow', index })}
             onChangeRules={() => dispatch({ type: 'goTo', stage: 'rules' })}
             onStartOver={startOver}
           />

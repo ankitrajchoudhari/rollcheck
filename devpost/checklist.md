@@ -39,7 +39,7 @@ Build mode: fast (chosen by the learner in advance)
   Learner check: Drop `student-mat.csv`, add "absences is at most 10" and "G3 is at least 10", click Check students, and see whether the reasons read the way you'd want staff to read them.
   Commit: `Add rule builder and check students`
 
-- [ ] **4. You can explore results: filter, search, open a student**
+- [x] **4. You can explore results: filter, search, open a student**
   Becomes usable: Counters filter the table, search, rule impact summary, virtualised table that stays smooth on 50k rows, row detail panel with every original cell, each rule's outcome and every reason (Esc closes, focus returns).
   Why now: Completes the results screen on top of the working check; depends on slice 3.
   PRD ref: `prd.md > Reviewing Results`, `prd.md > Screens and Layout` (3 · Results)
@@ -91,7 +91,7 @@ Build mode: fast (chosen by the learner in advance)
 
 ## Hands-on Checkpoints
 
-- [ ] Early usable behavior explored — after slice 3 (first real check on screen). Feedback received: whole header in one column, layout misaligned and not responsive, design dull and hard to understand. Fixed; waiting for the learner to retry.
+- [x] Early usable behavior explored — after slice 3 (first real check on screen). Feedback received: whole header in one column, layout misaligned and not responsive, design dull and hard to understand. Fixed; learner retried with their file (hacakthon.xlsx: 395 rows split into 33 columns, 169/166/60) and confirmed.
 - [ ] Final kick-the-tires exploration and feedback completed
 
 ## Final Review
@@ -118,3 +118,4 @@ Activity mode:
 - CSV read progress is shown as a percentage of the file ("Reading file… 62%") rather than "32,000 of 51,200" rows — the row total of a CSV is unknown until it has been read; checking progress does show "N of N".
 - A semicolon CSV opened in Excel and re-saved arrives with every line in column A (seen at the slice-3 checkpoint) — the engine now detects a single filled column whose header holds a delimiter, splits it, and tells the user (`splitSingleColumn` in `src/engine/read.ts`).
 - Rules screen redesigned after checkpoint feedback ("not aligned, dull, not responsive, not understandable") — rules as cards on a fixed grid (no long option can widen a field), a live plain-English "Your check" panel with the Check button beside the rules from 900px and right under them on narrow screens, titled register-style sections, a worked example on the File screen, a proportion bar on Results, and each stage opens scrolled to the top. Same `prd.md > Look and Feel` direction, applied more fully.
+- Results of 200 rows or fewer render in full; only larger results are virtualised — full rendering is simpler for screen readers and print, and lets the jsdom UI tests see rows. Verified virtualisation separately on 60,000 rows in Edge (about 24 rows in the DOM, search in ~110 ms).
