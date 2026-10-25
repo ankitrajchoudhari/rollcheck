@@ -100,7 +100,7 @@ export function Header({ stage, reachable, onGo, file }: HeaderProps) {
                       {inner}
                     </button>
                   ) : (
-                    <span className={`${base} w-full ${!here && !done ? 'opacity-70' : ''}`} aria-current={here ? 'step' : undefined}>
+                    <span className={`${base} w-full`} aria-current={here ? 'step' : undefined}>
                       {inner}
                     </span>
                   )}
