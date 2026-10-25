@@ -73,7 +73,7 @@
       </div>
       <details class="reveal"><summary><span class="caret"></span>Agent recommendations accepted at review<span class="count">6</span></summary><div class="body"><ul>
         <li>TypeScript pinned to <span class="mono">6.0.3</span>: TS 7 is out, but typescript-eslint 8.72 supports only &lt;6.1.</li>
-        <li>GitHub Pages as the optional deploy (same repo, no extra account). Vercel works too, with no code change.</li>
+        <li>GitHub Pages as the optional deploy — later changed to Vercel by the learner at ship time.</li>
         <li>Sample data shipped as semicolon CSV (shows delimiter detection; keeps "10 " byte-exact).</li>
         <li>Needs-review label text uses <span class="mono">#8A5A12</span> for AA contrast; <span class="mono">#B7791F</span> stays the icon and border colour.</li>
         <li>"is one of" values split on new lines or <span class="mono">;</span>, never commas, so "74,6" stays one value.</li>
@@ -206,7 +206,7 @@
         <dt>Run</dt><dd><span class="mono">npm install</span> → <span class="mono">npm run dev</span> → <span class="mono">http://localhost:5173</span></dd>
         <dt>Gates</dt><dd><span class="mono">npm test</span> · <span class="mono">npm run check</span> (type-check, lint, tests, build) · CI on every push</dd>
         <dt>Demo</dt><dd>Try sample data → Check students</dd>
-        <dt>Deploy</dt><dd>Optional: GitHub Pages via Actions, <span class="mono">base: './'</span></dd>
+        <dt>Deploy</dt><dd>Optional: Vercel (<span class="mono">vercel.json</span>), <span class="mono">base: './'</span></dd>
       </dl>
     </div>
   </section>
@@ -234,7 +234,7 @@
     <div>
       <h2>File Structure</h2>
 <pre class="tree">eligibility-checker/
-├── .github/workflows/  <span class="c"># ci.yml (gates) · pages.yml (optional deploy)</span>
+├── .github/workflows/  <span class="c"># ci.yml (gates)</span>
 ├── data/source/        <span class="c"># student-mat.csv, UCI, CC BY 4.0</span>
 ├── devpost/            <span class="c"># scope / prd / spec (+ html)</span>
 ├── public/sample/      <span class="c"># rollcheck-sample.csv with documented traps</span>

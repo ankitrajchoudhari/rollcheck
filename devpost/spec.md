@@ -55,7 +55,7 @@ Node 22 (installed: v22.23.2). npm 10.
 - Tests: `npm test`. All gates: `npm run check` (type-check, lint, tests, build).
 - Demo recording: local dev server or the deployed URL → click **Try sample data** → **Check students**.
 - Submission needs the video and the public GitHub repo; deployment is optional and extra.
-- **Deploy (recommended): GitHub Pages** via a GitHub Actions workflow — same repo, no extra account. Vite `base: './'` so the static build works under `/<repo>/`. The learner can switch to Vercel in `6-ship`; it needs no code change.
+- **Deploy: Vercel** (chosen by the learner at ship time; GitHub Pages was the original recommendation). `vercel.json` runs `npm ci` and `npm run build` and serves `dist/`. Vite `base: './'` keeps the build portable to any static host.
 
 ## Look and Feel
 Implements `prd.md > Look and Feel`.
@@ -192,8 +192,7 @@ Nothing about students is ever written to `localStorage`, IndexedDB, cookies or 
 ```
 eligibility-checker/
 ├── .github/workflows/
-│   ├── ci.yml                 # type-check, lint, test, build on every push
-│   └── pages.yml              # optional: deploy dist/ to GitHub Pages
+│   └── ci.yml                 # type-check, lint, test, build on every push
 ├── data/source/student-mat.csv  # UCI dataset (CC BY 4.0), input to make-sample
 ├── devpost/                   # scope / prd / spec (+ .html companions); learner-profile.md git-ignored
 ├── public/sample/rollcheck-sample.csv  # generated demo sheet with documented traps
@@ -234,7 +233,7 @@ eligibility-checker/
 - **No runtime services, no API keys, no network calls** after the page loads (fonts are bundled).
 - **SheetJS CDN tarball** — install-time only: `npm i https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz`. Licence Apache-2.0.
 - **UCI Student Performance** — downloaded once (`https://archive.ics.uci.edu/static/public/320/student+performance.zip`, verified working), committed as `data/source/student-mat.csv`. Cortez, P. (2008). Student Performance [Dataset]. UCI Machine Learning Repository. https://doi.org/10.24432/C5TG7T. Licence: **CC BY 4.0** (as stated on the UCI page) — redistribution allowed with attribution and an indication of changes, both in `DATA_SOURCES.md` and README.
-- **GitHub Pages** (optional deploy) — free for public repos; GitHub Actions `actions/deploy-pages`.
+- **Vercel** (optional deploy) — static hosting of `dist/`, configured in `vercel.json`. https://vercel.com/docs/frameworks/frontend/vite
 
 ## Important Failure Modes
 - **Huge or odd .xlsx makes SheetJS slow** → it runs in the worker; the page shows "Reading file…" and stays usable; Start over cancels by terminating and recreating the worker.
@@ -251,7 +250,7 @@ eligibility-checker/
 ## Decisions and Open Issues
 **Learner decisions carried forward:** the full stack above, Web Worker, pure engine modules, raw + parsed side by side, virtualised table, reducer state, @fontsource, lucide, Vitest + RTL, CI gates, static deploy (from `prd.md > Product Decisions` and the learner's technical plan).
 
-**Agent recommendations, accepted by the learner at review:** TypeScript pinned to 6.0.3 (TS 7 is out but typescript-eslint doesn't support it yet); GitHub Pages as the deploy target; sample data as CSV; the review-label text tone `#8A5A12` for AA contrast; "is one of" split on new lines / `;` not commas; `data/source/` committed (CC BY permits it) instead of git-ignored `data/raw/`.
+**Agent recommendations, accepted by the learner at review:** TypeScript pinned to 6.0.3 (TS 7 is out but typescript-eslint doesn't support it yet); GitHub Pages as the deploy target (later changed to Vercel by the learner); sample data as CSV; the review-label text tone `#8A5A12` for AA contrast; "is one of" split on new lines / `;` not commas; `data/source/` committed (CC BY permits it) instead of git-ignored `data/raw/`.
 
 **Resolved at review (learner accepted the recommendations):**
 1. **Margin boundary — the one genuine unknown.** Strict: a value is near-limit when `m > 0` and `|v − L| < m`. Values equal to the limit are near-limit (e.g. 17 sample students with G3 exactly 10). Evidence to check during the build: the margin-boundary unit test and the real demo counts.
