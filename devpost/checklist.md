@@ -92,23 +92,23 @@ Build mode: fast (chosen by the learner in advance)
 ## Hands-on Checkpoints
 
 - [x] Early usable behavior explored — after slice 3 (first real check on screen). Feedback received: whole header in one column, layout misaligned and not responsive, design dull and hard to understand. Fixed; learner retried with their file (hacakthon.xlsx: 395 rows split into 33 columns, 169/166/60) and confirmed.
-- [ ] Final kick-the-tires exploration and feedback completed
+- [x] Final kick-the-tires exploration and feedback completed — consolidated click-through checklist (16 checks incl. 8 edge-case files) handed over; learner replied "yes ship it" with no further changes requested.
 
 ## Final Review
 
-- [ ] Final review complete — feedback resolved and learner confirms ready to ship
+- [x] Final review complete — feedback resolved and learner confirms ready to ship
 
 ## Code Tour and App Map
 
-- [ ] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
-- [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
-- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [x] Learning activity complete — prior practice connected (focused alternative; no extra exercise)
+- [x] Optional edit and transfer reflection addressed — edit not applicable; transfer question offered once
+- [x] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
-Activity and evidence:
-Route and stops:
-Edit outcome:
-Reflection:
-Activity mode:
+Activity and evidence: Desired outcome was a fully tested logic core separate from the UI. Practised during the build: slice 1 built the engine alone with tests from the PRD edge cases; `src/engine/read.test.ts` "shows the real stored value, not the rounded display" failed first run and exposed the plain `0` format being treated as padding (fix in `src/engine/parse.ts`). At the slice-3 checkpoint the learner's Excel-re-saved file became the regression test "splits a semicolon CSV that Excel squeezed into one column" before the fix in `src/engine/read.ts` · `splitSingleColumn`.
+Route and stops: Reference route only (not toured live): `src/engine/classify.ts` classifyCell → `src/engine/evaluate.ts` evaluateNumber → `src/engine/group.ts` decideStatus + `src/engine/invariant.ts` assertInvariant.
+Edit outcome: Not applicable.
+Reflection: Offered once; optional.
+Activity mode: Prior practice connected, with app map.
 
 ## Revisions
 - `classifyCell` lives in `src/engine/classify.ts` and file reading entry point in `src/engine/read.ts` (not `normalise.ts`) — keeps the never-guess rule in one small, separately tested module.

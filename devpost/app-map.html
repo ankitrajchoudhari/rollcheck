@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rollcheck App Map</title>
+<meta name="description" content="A compact guide to where things live in Rollcheck, and one practice worth reusing.">
+<style>
+  :root { --bg:#FAF9F6; --surface:#fff; --text:#1C1B19; --muted:#6B6860; --line:#E4E1DA; --line2:#CFCBC1; --accent:#1F5F46; --soft:#E7F0EB; --review:#8A5A12; --rsoft:#FBF1E0; color-scheme: light; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#161614; --surface:#1E1D1B; --text:#ECE9E2; --muted:#A39F95; --line:#34322E; --line2:#4A4741; --accent:#6FBF98; --soft:#1F2C26; --review:#E3B062; --rsoft:#2E2618; color-scheme: dark; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.6 "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 960px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 28px; line-height: 1.2; margin: 4px 0 8px; }
+  h2 { font-size: 18px; margin: 0 0 10px; }
+  p { margin: 0 0 10px; max-width: 72ch; }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; font-size: .9em; }
+  .eyebrow { font: 500 12px "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .muted { color: var(--muted); }
+  section { border-top: 1px solid var(--line); padding: 24px 0; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; }
+  .grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  ol.route { list-style: none; padding: 0; margin: 0; counter-reset: s; }
+  ol.route > li { counter-increment: s; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px 12px 52px; margin: 8px 0; position: relative; }
+  ol.route > li::before { content: counter(s); position: absolute; left: 14px; top: 12px; width: 24px; height: 24px; border-radius: 4px; background: var(--accent); color: var(--surface); font: 600 13px/24px "IBM Plex Mono", monospace; text-align: center; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+  .diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; overflow-x: auto; }
+  .diagram svg { display: block; min-width: 720px; width: 100%; height: auto; }
+  .b { fill: var(--surface); stroke: var(--line2); } .a { fill: var(--soft); stroke: var(--accent); }
+  .t { fill: var(--text); font: 500 13px "IBM Plex Sans", system-ui, sans-serif; } .s { fill: var(--muted); font: 12px "IBM Plex Mono", ui-monospace, monospace; }
+  .l { stroke: var(--line2); stroke-width: 1.5; fill: none; } .ar { fill: var(--line2); }
+  .practice { border-left: 3px solid var(--accent); background: var(--surface); padding: 14px 16px; border-radius: 0 6px 6px 0; }
+  details { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; margin: 8px 0; }
+  summary { cursor: pointer; padding: 10px 14px; font-weight: 500; }
+  details > div { padding: 0 14px 12px; }
+  pre { background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; overflow-x: auto; margin: 6px 0 0; }
+  a { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">App map · snapshot of commit 1a39dfb</p>
+  <h1>Rollcheck — where things live</h1>
+  <p class="muted">A take-home guide to the code. It describes the app as of the commit above; later changes can make it drift.</p>
+
+  <section>
+    <h2>The app in one paragraph</h2>
+    <p>Rollcheck is a single web page. Office staff upload a student sheet, set up to five rules, and every student is sorted into Eligible, Not eligible or Needs review with a reason. A <b>pure, tested engine</b> (<code>src/engine/</code>) makes every decision; a <b>background worker</b> (<code>src/worker/</code>) runs it so big files don't freeze the page; the <b>screens</b> (<code>src/ui/</code>) only display results. Nothing is stored or sent anywhere — only the theme choice is remembered.</p>
+  </section>
+
+  <section>
+    <h2>One action, end to end: clicking “Check students”</h2>
+    <div class="diagram">
+      <svg viewBox="0 0 760 200" role="img" aria-labelledby="d1 d2">
+        <title id="d1">What happens when you click Check students</title>
+        <desc id="d2">The Check students button in App.tsx sends the rules to the worker client. The worker runs checkTable in the engine, which evaluates every rule, detects duplicates, decides each status and asserts the counts add up. The result comes back and the Results screen shows the counters and table.</desc>
+        <defs><marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" class="ar"/></marker></defs>
+        <rect x="10" y="30" width="160" height="70" rx="5" class="b"/><text x="24" y="58" class="t">Check students</text><text x="24" y="80" class="s">src/app/App.tsx</text>
+        <rect x="200" y="30" width="160" height="70" rx="5" class="b"/><text x="214" y="58" class="t">Worker client</text><text x="214" y="80" class="s">src/worker/client.ts</text>
+        <rect x="390" y="30" width="190" height="140" rx="5" class="a"/><text x="404" y="58" class="t">checkTable — the engine</text>
+        <text x="404" y="82" class="s">evaluateRule</text><text x="404" y="102" class="s">detectReviewCases</text><text x="404" y="122" class="s">decideStatus</text><text x="404" y="142" class="s">assertInvariant</text><text x="404" y="162" class="s">src/engine/check.ts</text>
+        <rect x="610" y="30" width="140" height="70" rx="5" class="b"/><text x="624" y="58" class="t">Results screen</text><text x="624" y="80" class="s">src/ui/results/</text>
+        <line x1="170" y1="65" x2="196" y2="65" class="l" marker-end="url(#m)"/>
+        <line x1="360" y1="65" x2="386" y2="65" class="l" marker-end="url(#m)"/>
+        <line x1="580" y1="65" x2="606" y2="65" class="l" marker-end="url(#m)"/>
+      </svg>
+    </div>
+    <p class="muted" style="margin-top:8px">Text version: App.tsx → worker client → engine (evaluate, review, decide, invariant) → Results screen.</p>
+  </section>
+
+  <section>
+    <h2>A three-stop route (reference — not toured live)</h2>
+    <p class="muted">Open these in your editor; search for the anchor in quotes.</p>
+    <ol class="route">
+      <li><b>Every cell is classified, never guessed.</b> <code>src/engine/classify.ts</code> · search <code>"export function classifyCell"</code>. Decides whether a cell is a clean number, a number stored as text (<code>"10 "</code>, <code>"75 %"</code>), a comma decimal (<code>"74,6"</code>), text (<code>"AB"</code>) or blank — and keeps the raw text beside it.</li>
+      <li><b>Each rule meets each cell.</b> <code>src/engine/evaluate.ts</code> · search <code>"function evaluateNumber"</code>. The strict near-limit margin (<code>Math.abs(v - limit) &lt; rule.margin</code>) and every reason sentence (from <code>src/engine/reasons.ts</code>).</li>
+      <li><b>The row is decided and the counts are proven.</b> <code>src/engine/group.ts</code> · <code>"export function decideStatus"</code> (any fail → Not eligible; any flag → Needs review), then <code>src/engine/invariant.ts</code> · <code>"export function assertInvariant"</code>, which withholds the result unless every row is in exactly one group.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>To change this, start here</h2>
+    <table>
+      <thead><tr><th>You want to…</th><th>Start in</th></tr></thead>
+      <tbody>
+        <tr><td>Reword a reason sentence</td><td><code>src/engine/reasons.ts</code> — then update the matching test text</td></tr>
+        <tr><td>Change a button label or screen text</td><td><code>src/ui/copy.ts</code></td></tr>
+        <tr><td>Add a new rule condition</td><td><code>src/engine/types.ts</code> (<code>Condition</code>), <code>evaluate.ts</code>, <code>src/ui/copy.ts</code> (<code>conditionLabel</code>), plus a test in <code>evaluate.test.ts</code></td></tr>
+        <tr><td>Change how duplicates are matched</td><td><code>src/engine/review.ts</code> · <code>namesMatch</code></td></tr>
+        <tr><td>Change colours, fonts or dark mode</td><td><code>src/styles/index.css</code> (tokens at the top)</td></tr>
+        <tr><td>Change what goes in the Excel download</td><td><code>src/io/exportXlsx.ts</code> · <code>buildResultsWorkbook</code></td></tr>
+        <tr><td>Change the demo sheet or its traps</td><td><code>scripts/make-sample.mjs</code>, then <code>npm run sample</code>; traps are listed in <code>DATA_SOURCES.md</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>A practice to reuse</h2>
+    <div class="practice">
+      <p><b>Put the decisions in a small, UI-free core and test it against the cases you are afraid of — before any screen exists.</b></p>
+      <p>In this build the first slice was the engine alone, with tests written from the PRD's edge cases. One of those tests — <code>src/engine/read.test.ts</code>, <i>“shows the real stored value, not the rounded display”</i> — failed on the first run: Excel's plain <code>0</code> number format was being treated as ID padding, so <code>74.6</code> would have been shown as <code>75</code>, the exact silent rounding the product exists to prevent. The fix was one character in <code>src/engine/parse.ts</code> (<code>/^00+$/</code>), found before any UI was built.</p>
+      <p>The second case was found the other way round: an Excel-re-saved CSV arrived as one column during hands-on testing. It became a regression test first (<i>“splits a semicolon CSV that Excel squeezed into one column”</i>), then a fix in <code>src/engine/read.ts</code> · <code>splitSingleColumn</code>.</p>
+      <p class="muted" style="margin:0">On another project: write the scary inputs as tests against the core first; when a real user finds a new one, turn it into a test before fixing it.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Run it again</h2>
+    <details open><summary>Commands</summary><div>
+<pre><code>npm install
+npm run dev        # http://localhost:5173 → Try sample data → Check students
+npm test           # all tests
+npm run check      # type-check, lint, tests, build</code></pre>
+    </div></details>
+    <p class="muted">Planning documents: <code>devpost/scope.md</code>, <code>prd.md</code>, <code>spec.md</code>, build record in <code>checklist.md</code>.</p>
+  </section>
+</main>
+</body>
+</html>
