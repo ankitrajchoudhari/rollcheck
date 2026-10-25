@@ -1,5 +1,11 @@
 # Rollcheck
 
+[![CI](https://github.com/ankitrajchoudhari/rollcheck/actions/workflows/ci.yml/badge.svg)](https://github.com/ankitrajchoudhari/rollcheck/actions/workflows/ci.yml)
+![Tests: 153 passing](https://img.shields.io/badge/tests-153%20passing-2F7A4B)
+![Lighthouse accessibility 100](https://img.shields.io/badge/Lighthouse%20accessibility-100-2F7A4B)
+[![Live demo](https://img.shields.io/badge/live-rollcheck--six.vercel.app-1F5F46)](https://rollcheck-six.vercel.app)
+[![License: MIT](https://img.shields.io/badge/license-MIT-6B6860)](LICENSE)
+
 **Check a student spreadsheet against eligibility rules — in the browser, without guessing.**
 
 [Live demo](https://rollcheck-six.vercel.app) · [Planning docs](devpost/) · [Data sources](DATA_SOURCES.md)
@@ -25,9 +31,10 @@ Rollcheck refuses to guess. Anything a formula would quietly get wrong goes to *
 ## What it does
 
 1. **Upload** a `.csv` or `.xlsx` file (or click **Try sample data**). Rollcheck finds the header row, detects the delimiter, lets you pick the sheet, guesses the ID and name columns, and shows a typed 5-row preview — values exactly as in the file.
-2. **Set 1–5 rules**, combined with AND: *is at least*, *is at most*, *equals*, *is not*, *is one of*, *is not blank*. Number rules have a margin: *"Treat values within 1 of the limit as Needs review."* A live panel says the rules back in plain English.
+2. **Set 1–5 rules** (or start from a template such as *Exam eligibility* or *Scholarship renewal*), combined with AND: *is at least*, *is at most*, *equals*, *is not*, *is one of*, *is not blank*. Number rules have a margin: *"Treat values within 1 of the limit as Needs review."* A live panel says the rules back in plain English.
 3. **See every student** with a reason, Needs review first. Click a counter to filter, search any value, open a row to see every original cell and what each rule decided.
-4. **Take it away**: download a 3-sheet `.xlsx` (Results with Status and Reason · Rules used · Needs review), save the rules as a small `.json` for next cycle, or print.
+4. **Compare with an Excel formula**: one click shows the `=IF(AND(...))` formula an office would type, what it would decide for every student, and each row where it is silently wrong.
+5. **Take it away**: download a 3-sheet `.xlsx` (Results with Status and Reason · Rules used · Needs review), save the rules as a small `.json` for next cycle, or print.
 
 | Reason examples | |
 |---|---|
@@ -111,7 +118,16 @@ A row with any clear failure is **Not eligible**; otherwise any flag makes it **
 
 Other details the engine handles: blank rows above the header, blank or repeated column names (renamed and reported), leading-zero IDs and dates kept as displayed, cells Excel shows rounded (the stored value is used), percent-formatted cells, multi-sheet workbooks, and semicolon CSVs that Excel squeezed into a single column.
 
-**Tests:** 138 Vitest tests — every condition, the margin boundary, every edge case, duplicates, rule sets, the invariant, the exported workbook read back from bytes, every trap in the sample data, and React Testing Library tests for the main flow, including a keyboard-only run. GitHub Actions CI runs type-check, lint, tests and build on every push.
+**Quality, measured:**
+
+| Check | Result |
+|---|---|
+| Tests (Vitest + React Testing Library) | **153 passing** — every condition, the margin boundary, every edge case, duplicates, rule sets, the invariant, the formula comparison, templates, the exported workbook read back from bytes, every sample trap, the main flow and a keyboard-only run |
+| Automated accessibility (axe-core) | **0 violations** on File, Rules, Results and the row detail |
+| Lighthouse, live site (desktop / mobile) | Accessibility **100 / 100** · Best practices **100 / 100** · SEO **100 / 100** · Performance **97 / 98** |
+| Colour contrast | every text colour checked against WCAG AA in light and dark |
+| Large files | 60,000 rows read and checked in a background worker; search in ~0.1 s |
+| CI | GitHub Actions runs type-check, lint, tests and build on every push |
 
 **Stack:** Vite, React, TypeScript (strict), Tailwind CSS, [SheetJS](https://docs.sheetjs.com/) (installed from the official SheetJS CDN), [Papa Parse](https://www.papaparse.com/), [TanStack Virtual](https://tanstack.com/virtual), lucide icons, IBM Plex via Fontsource. No backend, no accounts, no API keys.
 

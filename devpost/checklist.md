@@ -120,6 +120,8 @@ Activity mode: Prior practice connected, with app map.
 
 - [x] Rule templates (`src/ui/templates.ts`, 4 tests): columns matched by name; unmatched rules left marked for the user. Verified on an unseen exam-cell workbook.
 
+- [x] Quality proof: axe-core accessibility test (0 violations on every stage), Lighthouse on the live site (accessibility, best practices, SEO 100; performance 97/98) after fixing low-contrast dimmed stepper tabs, README badges.
+
 ## Revisions
 - `classifyCell` lives in `src/engine/classify.ts` and file reading entry point in `src/engine/read.ts` (not `normalise.ts`) — keeps the never-guess rule in one small, separately tested module.
 - Edge-case .xlsx/.csv fixtures are generated inside the tests (`src/engine/test-helpers.ts`) instead of stored in `tests/fixtures/` — same coverage, no binary files to keep in sync.
