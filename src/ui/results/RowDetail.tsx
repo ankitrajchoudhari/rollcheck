@@ -1,5 +1,6 @@
-import { X } from 'lucide-react'
+import { CircleCheck, CircleX, X } from 'lucide-react'
 import { useEffect, useRef } from 'react'
+import type { Decision } from '../../io/decisions'
 import type { CheckResult, OutcomeResult, Rule, Table } from '../../engine/core'
 import { describeRule } from '../rules/CheckPanel'
 import { StatusBadge } from './Status'
@@ -16,10 +17,56 @@ interface Props {
   rules: Rule[]
   index: number
   onClose: () => void
+  decision?: Decision | undefined
+  onDecide?: (d: Decision | null) => void
+}
+
+/** For a Needs review row: the person decides, with an optional note. */
+function DecisionBox({ decision, onDecide }: { decision: Decision | undefined; onDecide: (d: Decision | null) => void }) {
+  const note = decision?.note ?? ''
+  const pick = (status: Decision['status']) => onDecide({ status, note })
+  const opt = (status: Decision['status'], label: string, Icon: typeof CircleCheck, on: string) => (
+    <button
+      type="button"
+      aria-pressed={decision?.status === status}
+      onClick={() => pick(status)}
+      className={`btn flex-1 justify-center py-2 ${decision?.status === status ? on : ''}`}
+    >
+      <Icon size={16} aria-hidden="true" />
+      {label}
+    </button>
+  )
+  return (
+    <section aria-labelledby="decide-title" className="rounded-md border border-review-mark/50 bg-review-soft/60 p-3">
+      <h3 id="decide-title" className="text-sm font-semibold">Your decision</h3>
+      <p className="mt-0.5 text-xs text-muted">Rollcheck will not guess. After checking the student's record, record what you decided.</p>
+      <div className="mt-3 flex gap-2">
+        {opt('eligible', 'Eligible', CircleCheck, 'border-ok bg-ok-soft text-ok')}
+        {opt('not-eligible', 'Not eligible', CircleX, 'border-no bg-no-soft text-no')}
+      </div>
+      <label htmlFor="decision-note" className="label mt-3 block">Note (optional)</label>
+      <textarea
+        id="decision-note"
+        rows={2}
+        className="field mt-1 w-full"
+        placeholder="e.g. Checked the paper register: 75.2%"
+        value={note}
+        disabled={!decision}
+        onChange={(e) => decision && onDecide({ ...decision, note: e.target.value })}
+      />
+      {decision ? (
+        <button type="button" className="mt-2 text-xs text-muted underline underline-offset-2 hover:text-ink" onClick={() => onDecide(null)}>
+          Clear decision
+        </button>
+      ) : (
+        <p className="mt-2 text-xs text-muted">Choose a decision to add a note.</p>
+      )}
+    </section>
+  )
 }
 
 /** Everything about one student: every original cell, each rule's outcome, every reason. */
-export function RowDetail({ table, result, rules, index, onClose }: Props) {
+export function RowDetail({ table, result, rules, index, onClose, decision, onDecide }: Props) {
   const panel = useRef<HTMLDivElement>(null)
   const close = useRef(onClose)
   useEffect(() => {
@@ -82,6 +129,8 @@ export function RowDetail({ table, result, rules, index, onClose }: Props) {
         </header>
 
         <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
+          {row.status === 'review' && onDecide && <DecisionBox decision={decision} onDecide={onDecide} />}
+
           <section>
             <h3 className="label mb-2">Reason</h3>
             <ul className="space-y-1.5 text-sm">

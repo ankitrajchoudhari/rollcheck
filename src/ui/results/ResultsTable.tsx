@@ -2,6 +2,7 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { useRef, useSyncExternalStore } from 'react'
 import { Equal, EqualNot } from 'lucide-react'
 import type { CheckResult, FormulaVerdict, Table } from '../../engine/core'
+import type { Decisions } from '../../io/decisions'
 import { statusLabel } from '../copy'
 import { StatusBadge } from './Status'
 
@@ -17,6 +18,16 @@ interface Props {
   onOpen: (index: number) => void
   /** When comparing: what the usual spreadsheet formula would decide for each row. */
   formula?: FormulaVerdict[] | null
+  decisions?: Decisions
+}
+
+/** "Decided: Eligible" under a Needs review status. */
+export function DecidedTag({ status }: { status: 'eligible' | 'not-eligible' }) {
+  return (
+    <span className={`mt-1 inline-block rounded-sm border px-1.5 text-[11px] font-medium whitespace-nowrap ${status === 'eligible' ? 'border-ok/40 bg-ok-soft text-ok' : 'border-no/40 bg-no-soft text-no'}`}>
+      Decided: {statusLabel[status]}
+    </span>
+  )
 }
 
 /** The formula's answer, marked when it disagrees with Rollcheck. */
@@ -50,13 +61,13 @@ const FULL_RENDER_LIMIT = 200
 /** A register's margin mark: a thin coloured rule beside each row, always next to the text label. */
 const MARK = { eligible: 'border-l-ok', 'not-eligible': 'border-l-no', review: 'border-l-review-mark' } as const
 
-export function ResultsTable({ table, result, rows, columns, nameColumn, selected, onOpen, formula }: Props) {
+export function ResultsTable({ table, result, rows, columns, nameColumn, selected, onOpen, formula, decisions = {} }: Props) {
   const scroller = useRef<HTMLDivElement>(null)
   const narrow = useNarrow()
   const colIdx = columns.map((c) => table.headers.indexOf(c))
   const widths = columns.map((c) => (c === nameColumn ? 'minmax(140px, 200px)' : 'minmax(72px, 120px)'))
-  const template = `56px ${widths.join(' ')}${formula ? ' 140px' : ''} 132px minmax(320px, 1fr)`
-  const minWidth = 56 + columns.reduce((w, c) => w + (c === nameColumn ? 140 : 80), 0) + (formula ? 140 : 0) + 132 + 340
+  const template = `56px ${widths.join(' ')}${formula ? ' 140px' : ''} 168px minmax(320px, 1fr)`
+  const minWidth = 56 + columns.reduce((w, c) => w + (c === nameColumn ? 140 : 80), 0) + (formula ? 140 : 0) + 168 + 340
 
   // This component is not memoized, so the virtualizer's changing functions are safe here.
   // eslint-disable-next-line react-hooks/incompatible-library
@@ -130,7 +141,10 @@ export function ResultsTable({ table, result, rows, columns, nameColumn, selecte
                         </span>
                       ))}
                     </span>
-                    <StatusBadge status={row.status} />
+                    <span>
+                      <StatusBadge status={row.status} />
+                      {decisions[i] && <> <DecidedTag status={decisions[i].status} /></>}
+                    </span>
                     {formula && (
                       <span className="flex items-center gap-2 text-xs text-muted">
                         Excel formula: <FormulaCell verdict={formula[i]!} agrees={formula[i] === row.status} />
@@ -151,7 +165,10 @@ export function ResultsTable({ table, result, rows, columns, nameColumn, selecte
                     <FormulaCell verdict={formula[i]!} agrees={formula[i] === row.status} />
                   </span>
                 )}
-                <span role="cell" className="px-3 py-2.5"><StatusBadge status={row.status} /></span>
+                <span role="cell" className="px-3 py-2.5">
+                  <StatusBadge status={row.status} />
+                  {decisions[i] && <span className="block"><DecidedTag status={decisions[i].status} /></span>}
+                </span>
                 <span role="cell" className="px-3 py-2.5 leading-5">{row.reasons.join(' ')}</span>
                   </>
                 )}

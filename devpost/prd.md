@@ -124,6 +124,15 @@ Source: `scope.md > The Unique Kernel`.
 - [ ] Opening a row shows every original column, including ones not in the table.
 - [ ] Rule impact numbers for the demo match a manual count of the sample data.
 
+### Deciding Needs Review Students
+Added after shipping, at the learner's request, so a Needs review row ends with a recorded human decision instead of a dead end.
+- In the row detail of a Needs review student, the user marks **Eligible** or **Not eligible** and may add a note.
+- The table shows "Decided: …" under the status; the Needs review counter shows "N of M decided".
+- The download adds **Final decision** (the person's decision for a decided row, otherwise Rollcheck's group) and **Decision note**; Rules used records how many were decided by hand; print shows "Needs review → Eligible".
+- Rollcheck's own group, reasons and counts never change, and the invariant still applies to them. Decisions stay on the computer until downloaded, and are cleared by a new check or Start over.
+- This records decisions; it does not edit the data, so `## Non-Goals > No editing data in the app` still holds.
+- [ ] Deciding row 67 of the sample as Not eligible with a note shows "1 of 29 decided" and appears in the downloaded Results sheet.
+
 ### Comparing With a Spreadsheet Formula
 Added after shipping, at the learner's request, to make the kernel visible against the usual alternative.
 - "Compare with an Excel formula" on Results shows the formula an office would type for the current rules (e.g. `=IF(AND(absences<=10, G3>=10), "Eligible", "Not eligible")`), what it would decide for every student under Excel's comparison rules, and how many students it decides differently.

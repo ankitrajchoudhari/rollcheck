@@ -187,6 +187,7 @@ Traps: G3 `9.6`; absences `AB`; blank absences; absences `10 ` (trailing space);
 | Rules, margins, ID/name/match columns | React state | Rule builder, rule-set load | Kept on Change rules; gone on Start over / close. Persist only via a downloaded .json |
 | `CheckResult` (outcomes, groups, counts, impact) | React state | Check students | Replaced on each check; gone on Change rules→recheck, Start over, close |
 | Filter, search, open row | React state | Results controls | Reset on new check |
+| Decisions on Needs review rows (`src/io/decisions.ts`) | React state (`AppState.decisions`) | Row detail "Your decision" | Cleared on a new check or Start over; kept only in the downloaded .xlsx (Final decision, Decision note) |
 | Theme | `localStorage` (`rollcheck-theme`) | Theme toggle | Remembered |
 
 Nothing about students is ever written to `localStorage`, IndexedDB, cookies or the network.

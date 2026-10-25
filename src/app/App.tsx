@@ -108,7 +108,7 @@ export function App({ engine: given }: { engine?: EngineClient }) {
     if (!state.table || !state.result || !state.checked) return
     // SheetJS is only needed here, so it loads on the first download.
     const { buildResultsWorkbook, resultsFileName, workbookBytes } = await import('../io/exportXlsx')
-    download(resultsFileName(state.table.fileName), workbookBytes(buildResultsWorkbook(state.table, state.result, state.checked)), XLSX_TYPE)
+    download(resultsFileName(state.table.fileName), workbookBytes(buildResultsWorkbook(state.table, state.result, state.checked, state.decisions)), XLSX_TYPE)
   }
 
   const saveRuleSet = () => {
@@ -284,6 +284,8 @@ export function App({ engine: given }: { engine?: EngineClient }) {
             onFilter={(filter) => dispatch({ type: 'filter', filter })}
             onSearch={(search) => dispatch({ type: 'search', search })}
             onOpenRow={(index) => dispatch({ type: 'openRow', index })}
+            decisions={state.decisions}
+            onDecide={(index, decision) => dispatch({ type: 'decide', index, decision })}
             onChangeRules={() => dispatch({ type: 'goTo', stage: 'rules' })}
             onStartOver={startOver}
           />

@@ -2,6 +2,7 @@ import * as XLSX from 'xlsx'
 import type { CheckResult, Table } from '../engine/core'
 import type { CheckedWith } from './time'
 import { conditionLabel, statusLabel } from '../ui/copy'
+import { finalStatus, type Decisions } from './decisions'
 import { localTime } from './time'
 export type { CheckedWith } from './time'
 
@@ -14,9 +15,13 @@ const textSheet = (rows: string[][]) => {
 }
 
 
-export function buildResultsWorkbook(table: Table, result: CheckResult, checked: CheckedWith): XLSX.WorkBook {
-  const header = [...table.headers, 'Status', 'Reason']
-  const line = (i: number) => [...table.rows[i]!.map((c) => c.raw), statusLabel[result.rows[i]!.status], result.rows[i]!.reasons.join(' ')]
+export function buildResultsWorkbook(table: Table, result: CheckResult, checked: CheckedWith, decisions: Decisions = {}): XLSX.WorkBook {
+  const header = [...table.headers, 'Status', 'Reason', 'Final decision', 'Decision note']
+  const line = (i: number) => {
+    const r = result.rows[i]!
+    const d = decisions[i]
+    return [...table.rows[i]!.map((c) => c.raw), statusLabel[r.status], r.reasons.join(' '), statusLabel[finalStatus(r.status, d)], d ? (d.note.trim() || 'Decided by hand') : '']
+  }
   const all = table.rows.map((_, i) => line(i))
   const review = table.rows.map((_, i) => i).filter((i) => result.rows[i]!.status === 'review').map(line)
 
@@ -47,6 +52,9 @@ export function buildResultsWorkbook(table: Table, result: CheckResult, checked:
     ['Not eligible', String(counts.notEligible)],
     ['Needs review', String(counts.review)],
     ['Total', String(counts.total)],
+    [],
+    ['Needs review decided by hand', `${Object.keys(decisions).length} of ${counts.review}`],
+    ['', 'Final decision = the person\'s decision for a decided Needs review row, otherwise Rollcheck\'s group.'],
   ]
 
   const wb = XLSX.utils.book_new()

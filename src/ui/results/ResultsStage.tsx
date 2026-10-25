@@ -4,6 +4,7 @@ import { flushSync } from 'react-dom'
 import { compareWithFormula, formulaText, type CheckResult, type Rule, type Status, type Table } from '../../engine/core'
 import { describeRule } from '../rules/CheckPanel'
 import { copy, fmt, statusLabel } from '../copy'
+import type { Decision, Decisions } from '../../io/decisions'
 import type { CheckedWith } from '../../io/time'
 import { PrintReport } from './PrintReport'
 import { ResultsTable } from './ResultsTable'
@@ -33,7 +34,7 @@ const BAR: Record<Status, string> = { eligible: 'bg-ok', 'not-eligible': 'bg-no'
 const TOP: Record<Status, string> = { eligible: 'border-t-ok', 'not-eligible': 'border-t-no', review: 'border-t-review-mark' }
 
 /** The tally: three ruled columns that also filter the table, with one proportion bar underneath. */
-export function Counters({ result, filter, onFilter }: { result: CheckResult; filter: Status | null; onFilter: (s: Status | null) => void }) {
+export function Counters({ result, filter, onFilter, decided = 0 }: { result: CheckResult; filter: Status | null; onFilter: (s: Status | null) => void; decided?: number }) {
   return (
     <div className="overflow-hidden rounded-md border border-line bg-surface">
       <div className="grid grid-cols-3" role="group" aria-label="Filter by group">
@@ -60,6 +61,11 @@ export function Counters({ result, filter, onFilter }: { result: CheckResult; fi
                 <span className="tnum text-sm text-muted">{pct(n, result.counts.total)}</span>
               </span>
               <span className={`hidden text-xs sm:inline ${on ? STATUS_TEXT[s] : 'text-muted'}`}>{on ? 'Showing only these · click to show all' : 'Show only these'}</span>
+              {s === 'review' && n > 0 && (
+                <span className="tnum text-xs text-ink">
+                  <b className="font-semibold">{fmt(decided)}</b> of {fmt(n)} decided
+                </span>
+              )}
             </button>
           )
         })}
@@ -124,6 +130,8 @@ interface Props {
   onOpenRow: (i: number | null) => void
   onChangeRules: () => void
   onStartOver: () => void
+  decisions: Decisions
+  onDecide: (index: number, d: Decision | null) => void
 }
 
 /**
@@ -224,7 +232,7 @@ export function ResultsStage(p: Props) {
 
   return (
     <>
-    {printing && <PrintReport table={table} result={result} checked={p.checked} rows={shown} filter={filter} search={p.search} />}
+    {printing && <PrintReport table={table} result={result} checked={p.checked} rows={shown} filter={filter} search={p.search} decisions={p.decisions} />}
     <div className="space-y-5 print:hidden">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -243,7 +251,7 @@ export function ResultsStage(p: Props) {
         <div className="flex flex-wrap gap-2">{p.actions}</div>
       </div>
 
-      <Counters result={result} filter={filter} onFilter={p.onFilter} />
+      <Counters result={result} filter={filter} onFilter={p.onFilter} decided={Object.keys(p.decisions).length} />
 
       <RuleImpact table={table} result={result} rules={rules} />
 
@@ -338,11 +346,22 @@ export function ResultsStage(p: Props) {
             selected={p.selectedRow}
             onOpen={(i) => p.onOpenRow(i)}
             formula={comparison?.verdicts ?? null}
+            decisions={p.decisions}
           />
         )}
       </section>
 
-      {p.selectedRow !== null && <RowDetail table={table} result={result} rules={rules} index={p.selectedRow} onClose={() => p.onOpenRow(null)} />}
+      {p.selectedRow !== null && (
+        <RowDetail
+          table={table}
+          result={result}
+          rules={rules}
+          index={p.selectedRow}
+          onClose={() => p.onOpenRow(null)}
+          decision={p.decisions[p.selectedRow]}
+          onDecide={(d) => p.onDecide(p.selectedRow!, d)}
+        />
+      )}
     </div>
     </>
   )

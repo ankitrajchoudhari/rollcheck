@@ -1,7 +1,7 @@
 # Rollcheck
 
 [![CI](https://github.com/ankitrajchoudhari/rollcheck/actions/workflows/ci.yml/badge.svg)](https://github.com/ankitrajchoudhari/rollcheck/actions/workflows/ci.yml)
-![Tests: 153 passing](https://img.shields.io/badge/tests-153%20passing-2F7A4B)
+![Tests: 155 passing](https://img.shields.io/badge/tests-155%20passing-2F7A4B)
 ![Lighthouse accessibility 100](https://img.shields.io/badge/Lighthouse%20accessibility-100-2F7A4B)
 [![Live demo](https://img.shields.io/badge/live-rollcheck--six.vercel.app-1F5F46)](https://rollcheck-six.vercel.app)
 [![License: MIT](https://img.shields.io/badge/license-MIT-6B6860)](LICENSE)
@@ -32,9 +32,9 @@ Rollcheck refuses to guess. Anything a formula would quietly get wrong goes to *
 
 1. **Upload** a `.csv` or `.xlsx` file (or click **Try sample data**). Rollcheck finds the header row, detects the delimiter, lets you pick the sheet, guesses the ID and name columns, and shows a typed 5-row preview — values exactly as in the file.
 2. **Set 1–5 rules** (or start from a template such as *Exam eligibility* or *Scholarship renewal*), combined with AND: *is at least*, *is at most*, *equals*, *is not*, *is one of*, *is not blank*. Number rules have a margin: *"Treat values within 1 of the limit as Needs review."* A live panel says the rules back in plain English.
-3. **See every student** with a reason, Needs review first. Click a counter to filter, search any value, open a row to see every original cell and what each rule decided.
+3. **See every student** with a reason, Needs review first. Click a counter to filter, search any value, open a row to see every original cell and what each rule decided — and, for a Needs review student, **record your decision** (Eligible or Not eligible, with a note). Rollcheck's own result never changes; your decision is saved next to it.
 4. **Compare with an Excel formula**: one click shows the `=IF(AND(...))` formula an office would type, what it would decide for every student, and each row where it is silently wrong.
-5. **Take it away**: download a 3-sheet `.xlsx` (Results with Status and Reason · Rules used · Needs review), save the rules as a small `.json` for next cycle, or print.
+5. **Take it away**: download a 3-sheet `.xlsx` (Results with Status, Reason, Final decision and note · Rules used · Needs review), save the rules as a small `.json` for next cycle, or print.
 
 | Reason examples | |
 |---|---|
@@ -50,7 +50,7 @@ Duplicates are **flagged, never merged**. Nothing in your data is changed.
 | | |
 |---|---|
 | ![File screen](docs/screenshots/1-file.png) | ![Rules screen with the live plain-English check panel](docs/screenshots/2-rules.png) |
-| ![Row detail: every cell and each rule's outcome](docs/screenshots/4-detail.png) | |
+| ![Row detail: every cell and each rule's outcome](docs/screenshots/4-detail.png) | ![Compared with an Excel formula: 29 of 120 students get a different answer](docs/screenshots/5-compare.png) |
 
 ## Live demo
 
@@ -122,7 +122,7 @@ Other details the engine handles: blank rows above the header, blank or repeated
 
 | Check | Result |
 |---|---|
-| Tests (Vitest + React Testing Library) | **153 passing** — every condition, the margin boundary, every edge case, duplicates, rule sets, the invariant, the formula comparison, templates, the exported workbook read back from bytes, every sample trap, the main flow and a keyboard-only run |
+| Tests (Vitest + React Testing Library) | **155 passing** — every condition, the margin boundary, every edge case, duplicates, rule sets, the invariant, the formula comparison, templates, the exported workbook read back from bytes, every sample trap, the main flow and a keyboard-only run |
 | Automated accessibility (axe-core) | **0 violations** on File, Rules, Results and the row detail |
 | Lighthouse, live site (desktop / mobile) | Accessibility **100 / 100** · Best practices **100 / 100** · SEO **100 / 100** · Performance **97 / 98** |
 | Colour contrast | every text colour checked against WCAG AA in light and dark |

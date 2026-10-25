@@ -1,4 +1,5 @@
 import type { CheckResult, Status, Table } from '../../engine/core'
+import { finalStatus, type Decisions } from '../../io/decisions'
 import { localTime, type CheckedWith } from '../../io/time'
 import { describeRule } from '../rules/CheckPanel'
 import { fmt, statusLabel } from '../copy'
@@ -10,10 +11,11 @@ interface Props {
   rows: number[]
   filter: Status | null
   search: string
+  decisions?: Decisions
 }
 
 /** Only shown when printing: a plain, complete paper record of the check. */
-export function PrintReport({ table, result, checked, rows, filter, search }: Props) {
+export function PrintReport({ table, result, checked, rows, filter, search, decisions = {} }: Props) {
   const columns = [...new Set([checked.idColumn, checked.nameColumn, ...checked.rules.map((r) => r.column)].filter(Boolean))]
   const idx = columns.map((c) => table.headers.indexOf(c))
   const { counts } = result
@@ -57,7 +59,10 @@ export function PrintReport({ table, result, checked, rows, filter, search }: Pr
               {idx.map((c, k) => (
                 <td key={k} className="border border-black px-1 py-0.5 font-mono whitespace-pre">{table.rows[i]![c]!.raw}</td>
               ))}
-              <td className="border border-black px-1 py-0.5">{statusLabel[result.rows[i]!.status]}</td>
+              <td className="border border-black px-1 py-0.5">
+                {statusLabel[result.rows[i]!.status]}
+                {decisions[i] && ` → ${statusLabel[finalStatus(result.rows[i]!.status, decisions[i])]}`}
+              </td>
               <td className="border border-black px-1 py-0.5">{result.rows[i]!.reasons.join(' ')}</td>
             </tr>
           ))}

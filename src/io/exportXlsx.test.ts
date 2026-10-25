@@ -26,7 +26,7 @@ describe('results workbook', () => {
 
   it('keeps every original value exactly, in file order, with Status and Reason', () => {
     const rows = sheet('Results')
-    expect(rows[0]).toEqual(['ID', 'Name', 'absences', 'G3', 'Status', 'Reason'])
+    expect(rows[0]).toEqual(['ID', 'Name', 'absences', 'G3', 'Status', 'Reason', 'Final decision', 'Decision note'])
     expect(rows).toHaveLength(5)
     expect(rows[1]!.slice(0, 5)).toEqual(['00417', 'Ana', '2', '15', 'Eligible'])
     expect(rows[2]![2]).toBe('AB')
@@ -58,4 +58,18 @@ describe('results workbook', () => {
     expect(resultsFileName('Exam Cell March.xlsx')).toBe('Exam Cell March-rollcheck.xlsx')
     expect(resultsFileName('students.csv')).toBe('students-rollcheck.xlsx')
   })
+
+  it("records a person's decision on a Needs review row next to Rollcheck's result", () => {
+    const decided = XLSX.read(
+      workbookBytes(buildResultsWorkbook(table, result, checked, { 1: { status: 'eligible', note: 'AB was a typo; register shows 3' } })),
+      { type: 'array' },
+    )
+    const rows = XLSX.utils.sheet_to_json<string[]>(decided.Sheets['Results']!, { header: 1, raw: false, defval: '' })
+    expect(rows[2]!.slice(4)).toEqual(['Needs review', "absences is 'AB', not a number. Check manually.", 'Eligible', 'AB was a typo; register shows 3'])
+    expect(rows[3]!.slice(6)).toEqual(['Needs review', ''])
+    expect(rows[1]!.slice(6)).toEqual(['Eligible', ''])
+    const used = XLSX.utils.sheet_to_json<string[]>(decided.Sheets['Rules used']!, { header: 1 }).map((r) => r.filter(Boolean).join(' | '))
+    expect(used).toContain('Needs review decided by hand | 1 of 2')
+  })
 })
+

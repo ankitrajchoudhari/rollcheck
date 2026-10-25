@@ -122,6 +122,8 @@ Activity mode: Prior practice connected, with app map.
 
 - [x] Quality proof: axe-core accessibility test (0 violations on every stage), Lighthouse on the live site (accessibility, best practices, SEO 100; performance 97/98) after fixing low-contrast dimmed stepper tabs, README badges.
 
+- [x] Decisions on Needs review rows (row detail, table tag, counter, export columns, print), 2 new tests; verified in Edge including the downloaded file.
+
 ## Revisions
 - `classifyCell` lives in `src/engine/classify.ts` and file reading entry point in `src/engine/read.ts` (not `normalise.ts`) — keeps the never-guess rule in one small, separately tested module.
 - Edge-case .xlsx/.csv fixtures are generated inside the tests (`src/engine/test-helpers.ts`) instead of stored in `tests/fixtures/` — same coverage, no binary files to keep in sync.

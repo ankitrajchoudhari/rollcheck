@@ -1,4 +1,5 @@
 import type { CheckResult, Progress, Rule, Status, Table } from '../engine/core'
+import type { Decision, Decisions } from '../io/decisions'
 
 export type Stage = 'file' | 'rules' | 'results'
 
@@ -22,6 +23,8 @@ export interface AppState {
   filter: Status | null
   search: string
   selectedRow: number | null
+  /** Decisions on Needs review rows, by row index. Cleared on every new check. */
+  decisions: Decisions
 }
 
 export const initialState: AppState = {
@@ -41,6 +44,7 @@ export const initialState: AppState = {
   filter: null,
   search: '',
   selectedRow: null,
+  decisions: {},
 }
 
 export type Action =
@@ -56,6 +60,7 @@ export type Action =
   | { type: 'filter'; filter: Status | null }
   | { type: 'search'; search: string }
   | { type: 'openRow'; index: number | null }
+  | { type: 'decide'; index: number; decision: Decision | null }
   | { type: 'goTo'; stage: Stage }
   | { type: 'startOver' }
 
@@ -146,6 +151,7 @@ export function reducer(state: AppState, action: Action): AppState {
         filter: null,
         search: '',
         selectedRow: null,
+        decisions: {},
       }
     case 'filter':
       return { ...state, filter: action.filter }
@@ -153,6 +159,12 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, search: action.search }
     case 'openRow':
       return { ...state, selectedRow: action.index }
+    case 'decide': {
+      const decisions = { ...state.decisions }
+      if (action.decision) decisions[action.index] = action.decision
+      else delete decisions[action.index]
+      return { ...state, decisions }
+    }
     case 'goTo':
       return { ...state, stage: action.stage, message: null, selectedRow: null }
     case 'startOver':
