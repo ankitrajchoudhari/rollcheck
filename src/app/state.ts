@@ -51,6 +51,7 @@ export type Action =
   | { type: 'columns'; idColumn?: string; nameColumn?: string; matchColumns?: string[] }
   | { type: 'rules'; rules: Rule[] }
   | { type: 'ruleSetLoaded'; rules: Rule[]; idColumn?: string; nameColumn?: string; matchColumns: string[]; missingColumns: string[] }
+  | { type: 'rulesReplaced'; rules: Rule[]; text: string }
   | { type: 'checked'; result: CheckResult }
   | { type: 'filter'; filter: Status | null }
   | { type: 'search'; search: string }
@@ -126,6 +127,8 @@ export function reducer(state: AppState, action: Action): AppState {
           : { tone: 'info', text: `Rule set loaded: ${action.rules.length} rule${action.rules.length === 1 ? '' : 's'}.` },
       }
     }
+    case 'rulesReplaced':
+      return { ...state, rules: action.rules, missingColumns: [], message: { tone: 'info', text: action.text } }
     case 'checked':
       return {
         ...state,

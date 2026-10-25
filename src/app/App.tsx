@@ -9,6 +9,7 @@ import { CheckPanel } from '../ui/rules/CheckPanel'
 import { newRule, RuleBuilder } from '../ui/rules/RuleBuilder'
 import { RulesStage } from '../ui/rules/RulesStage'
 import { SAMPLE_FILE, sampleColumns, sampleRules } from '../ui/sampleRules'
+import { applyTemplate, TEMPLATES } from '../ui/templates'
 import { ResultsStage } from '../ui/results/ResultsStage'
 import { Footer, Header } from '../ui/shell/Shell'
 import { EngineClient } from '../worker/client'
@@ -116,6 +117,20 @@ export function App({ engine: given }: { engine?: EngineClient }) {
     download('rollcheck-rules.json', json, 'application/json')
   }
 
+  const applyTemplateById = (id: string) => {
+    const t = TEMPLATES.find((x) => x.id === id)
+    if (!t || !state.table) return
+    const { rules, unmatched } = applyTemplate(t, state.table.headers)
+    setShowProblems(unmatched.length > 0)
+    dispatch({
+      type: 'rulesReplaced',
+      rules,
+      text: unmatched.length
+        ? `Template "${t.name}" added. This file has no column that looks like ${unmatched.join(' or ')} — choose one for each marked rule.`
+        : `Template "${t.name}" added. Check the columns it picked, then Check students.`,
+    })
+  }
+
   const ruleSetInput = useRef<HTMLInputElement>(null)
   const loadRuleSet = async (file: File) => {
     if (!state.table) return
@@ -173,7 +188,21 @@ export function App({ engine: given }: { engine?: EngineClient }) {
             onSheet={chooseSheet}
             onColumns={(c) => dispatch({ type: 'columns', ...c })}
             ruleActions={
-              <>
+              <div className="flex flex-wrap items-center gap-2">
+                <label htmlFor="template" className="sr-only">Start from a template</label>
+                <select
+                  id="template"
+                  className="field field-sm"
+                  value=""
+                  onChange={(e) => e.target.value && applyTemplateById(e.target.value)}
+                >
+                  <option value="">Start from a template…</option>
+                  {TEMPLATES.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name} — {t.summary}
+                    </option>
+                  ))}
+                </select>
                 <button type="button" className="btn px-2.5 py-1 text-xs" onClick={() => ruleSetInput.current?.click()}>
                   <FileUp size={16} aria-hidden="true" />
                   Load rule set
@@ -191,7 +220,7 @@ export function App({ engine: given }: { engine?: EngineClient }) {
                     if (f) void loadRuleSet(f)
                   }}
                 />
-              </>
+              </div>
             }
             aside={
               <CheckPanel

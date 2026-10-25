@@ -87,6 +87,7 @@ Source: `scope.md > The POC Boundary`.
 - "is not blank" takes no value.
 - If a number rule targets a column that is mostly not numbers, a warning shows before checking: "Most values in Attendance are not numbers. Results for this rule will mostly be Needs review." The user can still continue.
 - Fully keyboard-operable: every control labelled, reorder by buttons not only drag.
+- **Templates** (added after shipping, at the learner's request): "Start from a template" adds the rules for a common check — Exam eligibility, Scholarship renewal, Record complete, Sample data demo — finding each column by name in the open file. A rule with no matching column is left marked for the user to choose; nothing is guessed silently.
 - [ ] With 5 rules, "Add rule" is disabled; removing one re-enables it.
 - [ ] Choosing "is not blank" hides the value field.
 - [ ] Rules can be added, edited, reordered and removed using only the keyboard.
