@@ -19,7 +19,7 @@ Build mode: fast (chosen by the learner in advance)
   Learner check: Run `npm test` and read the test names in `src/engine/` — each PRD edge case should have a test you recognise.
   Commit: `Add tested eligibility engine`
 
-- [ ] **2. You can drop a file and see what Rollcheck read**
+- [x] **2. You can drop a file and see what Rollcheck read**
   Becomes usable: The File screen (drop zone, privacy line) accepts .csv/.xlsx and moves to Rules showing file name, sheet picker, row/column counts, ID/name pickers, renamed-column notices and a 5-row typed preview. Wrong type, empty and unreadable files show their messages. Big files show progress.
   Why now: First real path through the browser, and it carries the worker risk (Web Worker + SheetJS + Vite bundling) early.
   PRD ref: `prd.md > The Core Journey` (steps 1–3), `prd.md > Screens and Layout`, `prd.md > Reading the File`, `prd.md > States and Boundaries`
@@ -115,3 +115,4 @@ Activity mode:
 - Edge-case .xlsx/.csv fixtures are generated inside the tests (`src/engine/test-helpers.ts`) instead of stored in `tests/fixtures/` — same coverage, no binary files to keep in sync.
 - A number stored as text ("75 %", "10 ") always goes to Needs review, even when its parsed value fails — the PRD says "parse AND flag Needs review", so such a value never decides on its own; the reason adds what the parsed value would mean.
 - Excel's plain `0` number format was being mistaken for zero-padding and showed 74.6 as "75" — caught by the slice-1 test; only formats of two or more zeros now count as padding.
+- CSV read progress is shown as a percentage of the file ("Reading file… 62%") rather than "32,000 of 51,200" rows — the row total of a CSV is unknown until it has been read; checking progress does show "N of N".

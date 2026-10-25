@@ -1,1 +1,118 @@
 @import "tailwindcss";
+
+/* Design tokens — spec.md > Look and Feel. Colour values switch by theme; Tailwind reads them. */
+:root {
+  --bg: #faf9f6;
+  --surface: #ffffff;
+  --text: #1c1b19;
+  --muted: #6b6860;
+  --line: #e4e1da;
+  --line-strong: #cfcbc1;
+  --accent: #1f5f46;
+  --accent-ink: #ffffff;
+  --accent-soft: #e7f0eb;
+  --ok: #2f7a4b;
+  --ok-soft: #eaf3ec;
+  --no: #a33b2b;
+  --no-soft: #f7e9e6;
+  /* #B7791F is the review mark (icons, borders); text uses a darker tone for AA contrast. */
+  --review: #8a5a12;
+  --review-mark: #b7791f;
+  --review-soft: #fbf1e0;
+  --focus: #1f5f46;
+  --shadow-panel: 0 8px 24px rgb(28 27 25 / 0.12);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161614; --surface: #1e1d1b; --text: #ece9e2; --muted: #a39f95; --line: #34322e; --line-strong: #4a4741;
+    --accent: #6fbf98; --accent-ink: #10201a; --accent-soft: #1f2c26; --ok: #74c493; --ok-soft: #1c2a21;
+    --no: #e58a7b; --no-soft: #2e1e1b; --review: #e3b062; --review-mark: #e3b062; --review-soft: #2e2618;
+    --focus: #6fbf98; --shadow-panel: 0 8px 24px rgb(0 0 0 / 0.45);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #161614; --surface: #1e1d1b; --text: #ece9e2; --muted: #a39f95; --line: #34322e; --line-strong: #4a4741;
+  --accent: #6fbf98; --accent-ink: #10201a; --accent-soft: #1f2c26; --ok: #74c493; --ok-soft: #1c2a21;
+  --no: #e58a7b; --no-soft: #2e1e1b; --review: #e3b062; --review-mark: #e3b062; --review-soft: #2e2618;
+  --focus: #6fbf98; --shadow-panel: 0 8px 24px rgb(0 0 0 / 0.45);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--text);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-no: var(--no);
+  --color-no-soft: var(--no-soft);
+  --color-review: var(--review);
+  --color-review-mark: var(--review-mark);
+  --color-review-soft: var(--review-soft);
+  --shadow-panel: var(--shadow-panel);
+}
+
+@theme {
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  /* Type scale 13 / 14 / 16 / 20 / 28 */
+  --text-xs: 13px;
+  --text-xs--line-height: 18px;
+  --text-sm: 14px;
+  --text-sm--line-height: 20px;
+  --text-base: 16px;
+  --text-base--line-height: 24px;
+  --text-lg: 20px;
+  --text-lg--line-height: 28px;
+  --text-xl: 28px;
+  --text-xl--line-height: 34px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+}
+
+@layer base {
+  html { background: var(--bg); }
+  body {
+    @apply bg-bg text-ink font-sans text-sm antialiased;
+    margin: 0;
+  }
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  button, input, select, textarea { font: inherit; color: inherit; }
+}
+
+@layer components {
+  .tnum { font-variant-numeric: tabular-nums; }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-sm border border-line-strong bg-surface px-3 py-1.5 font-medium text-ink;
+    transition: background-color 150ms ease, border-color 150ms ease;
+  }
+  .btn:hover:not(:disabled) { @apply border-ink/40; }
+  .btn:disabled { @apply cursor-not-allowed opacity-50; }
+  .btn-primary { @apply border-accent bg-accent text-accent-ink; }
+  .btn-primary:hover:not(:disabled) { @apply border-accent; filter: brightness(1.08); }
+  .btn-quiet { @apply border-transparent bg-transparent text-muted; }
+  .btn-quiet:hover:not(:disabled) { @apply border-line text-ink; }
+  .field {
+    @apply rounded-sm border border-line-strong bg-surface px-2 py-1.5 text-sm text-ink;
+  }
+  .field[aria-invalid="true"] { @apply border-no; }
+  .label { @apply text-xs font-medium text-muted; }
+  .eyebrow { @apply font-mono text-xs uppercase tracking-wider text-muted; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
