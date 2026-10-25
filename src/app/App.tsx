@@ -1,10 +1,12 @@
-import { useCallback, useReducer, useRef } from 'react'
-import { detectColumns, type Progress, type Rule } from '../engine'
+import { useCallback, useReducer, useRef, useState } from 'react'
+import { detectColumns, ruleProblem, type Progress, type Rule } from '../engine'
 import { readFileBytes } from '../io/readFile'
 import { copy, fmt } from '../ui/copy'
 import { FileStage } from '../ui/file/FileStage'
+import { newRule, RuleBuilder } from '../ui/rules/RuleBuilder'
 import { RulesStage } from '../ui/rules/RulesStage'
-import { Header, Stepper } from '../ui/shell/Shell'
+import { ResultsStage } from '../ui/results/ResultsStage'
+import { BusyLine, Header, Notice, Stepper } from '../ui/shell/Shell'
 import { EngineClient } from '../worker/client'
 import { initialState, reducer, type Stage } from './state'
 
@@ -35,7 +37,7 @@ export function App({ engine: given }: { engine?: EngineClient }) {
         idColumn: columns?.idColumn ?? detected.idColumn ?? '',
         nameColumn: columns?.nameColumn ?? detected.nameColumn ?? '',
         matchColumns: columns?.matchColumns ?? detected.matchColumns,
-        ...(rules ? { rules } : {}),
+        rules: rules ?? [newRule()],
       })
     } catch (e) {
       if (!isCancelled(e)) dispatch({ type: 'failed', text: messageOf(e) })
@@ -61,6 +63,29 @@ export function App({ engine: given }: { engine?: EngineClient }) {
     } catch (e) {
       if (!isCancelled(e)) dispatch({ type: 'failed', text: messageOf(e) })
     }
+  }
+
+  const [showProblems, setShowProblems] = useState(false)
+  const problems = state.table ? state.rules.map((r, i) => [i, ruleProblem(r, state.table!.headers)] as const).filter(([, p]) => p) : []
+
+  const check = async () => {
+    setShowProblems(true)
+    if (!state.table || state.rules.length === 0 || problems.length > 0) return
+    dispatch({ type: 'busy', label: copy.checking })
+    const options = { idColumn: state.idColumn, nameColumn: state.nameColumn, matchColumns: state.matchColumns }
+    try {
+      const result = await engine().check(state.rules, options, (progress) => dispatch({ type: 'busy', label: copy.checking, progress }))
+      setShowProblems(false)
+      dispatch({ type: 'checked', result })
+    } catch (e) {
+      if (!isCancelled(e)) dispatch({ type: 'failed', text: messageOf(e) })
+    }
+  }
+
+  const startOver = () => {
+    engine().reset()
+    setShowProblems(false)
+    dispatch({ type: 'startOver' })
   }
 
   const reachable = (s: Stage) => s === 'file' || (s === 'rules' && !!state.table) || (s === 'results' && !!state.result)
@@ -90,6 +115,43 @@ export function App({ engine: given }: { engine?: EngineClient }) {
             message={state.message}
             onSheet={chooseSheet}
             onColumns={(c) => dispatch({ type: 'columns', ...c })}
+          >
+            <RuleBuilder
+              table={state.table}
+              rules={state.rules}
+              showProblems={showProblems}
+              missingColumns={state.missingColumns}
+              onChange={(rules) => dispatch({ type: 'rules', rules })}
+            />
+            <div className="flex flex-wrap items-center gap-4 border-t border-line pt-4">
+              <button type="button" className="btn btn-primary px-4 py-2" onClick={check} disabled={state.busy !== null || state.rules.length === 0}>
+                {copy.checkStudents}
+              </button>
+              {state.rules.length === 0 && <span className="text-xs text-muted">{copy.needRule}</span>}
+              {state.busy && <BusyLine label={state.busy.label} detail={progressText(state.busy.progress)} />}
+              {showProblems && problems.length > 0 && (
+                <Notice tone="error">
+                  {problems.length === 1 ? `Rule ${problems[0]![0] + 1}: ${problems[0]![1]}` : `${problems.length} rules are incomplete. Each one is marked above.`}
+                </Notice>
+              )}
+              <button type="button" className="btn btn-quiet ml-auto" onClick={startOver}>
+                {copy.startOver}
+              </button>
+            </div>
+          </RulesStage>
+        )}
+
+        {state.stage === 'results' && state.table && state.result && state.checked && (
+          <ResultsStage
+            table={state.table}
+            result={state.result}
+            rules={state.checked.rules}
+            idColumn={state.checked.idColumn}
+            nameColumn={state.checked.nameColumn}
+            filter={state.filter}
+            onFilter={(filter) => dispatch({ type: 'filter', filter })}
+            onChangeRules={() => dispatch({ type: 'goTo', stage: 'rules' })}
+            onStartOver={startOver}
           />
         )}
       </main>

@@ -29,7 +29,7 @@ Build mode: fast (chosen by the learner in advance)
   Learner check: Run `npm run dev`, open http://localhost:5173, drop `data/source/student-mat.csv`, and check the counts (395 rows, 33 columns) and preview.
   Commit: `Read files in a worker and show summary`
 
-- [ ] **3. You can set rules and see every student checked**
+- [x] **3. You can set rules and see every student checked**
   Becomes usable: Rule builder (1–5 rules, six conditions, margin, add/remove/reorder by keyboard, "Also match duplicates on", mostly-non-numeric warning) → Check students → Results shows "N of N students checked", the three counters and a basic table with Status and Reason, Needs review first. Invariant failure shows the error.
   Why now: This is the kernel visible end to end — the first moment the product's promise can be seen on screen. Early feedback here can still shape the results design.
   PRD ref: `prd.md > Building Rules`, `prd.md > Checking Students`, `prd.md > The Core Journey` (steps 4–5)
