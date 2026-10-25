@@ -79,7 +79,7 @@ Build mode: fast (chosen by the learner in advance)
   Learner check: Toggle dark mode, narrow the window to phone width, and do the whole journey with only the keyboard.
   Commit: `Polish states, dark mode and accessibility`
 
-- [ ] **8. Anyone can understand, run and trust the repo**
+- [x] **8. Anyone can understand, run and trust the repo**
   Becomes usable: README (what, who, screenshots, run, test, engine architecture, data + licence + traps, limitations, "Built with the Devpost Learn Skill Pack using Claude Code"), CI workflow running the gates on push, optional Pages deploy workflow.
   Why now: Submission needs a public repo reviewers can read without running anything.
   PRD ref: `prd.md > What We're Building`
