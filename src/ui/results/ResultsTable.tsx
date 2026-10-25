@@ -1,6 +1,8 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useRef, useSyncExternalStore } from 'react'
-import type { CheckResult, Table } from '../../engine/core'
+import { Equal, EqualNot } from 'lucide-react'
+import type { CheckResult, FormulaVerdict, Table } from '../../engine/core'
+import { statusLabel } from '../copy'
 import { StatusBadge } from './Status'
 
 interface Props {
@@ -13,6 +15,20 @@ interface Props {
   nameColumn?: string
   selected: number | null
   onOpen: (index: number) => void
+  /** When comparing: what the usual spreadsheet formula would decide for each row. */
+  formula?: FormulaVerdict[] | null
+}
+
+/** The formula's answer, marked when it disagrees with Rollcheck. */
+export function FormulaCell({ verdict, agrees }: { verdict: FormulaVerdict; agrees: boolean }) {
+  const Icon = agrees ? Equal : EqualNot
+  return (
+    <span className={`inline-flex items-center gap-1.5 text-xs whitespace-nowrap ${agrees ? 'text-muted' : 'rounded-sm bg-no-soft px-1.5 py-0.5 font-medium text-no'}`}>
+      <Icon size={14} aria-hidden="true" />
+      {statusLabel[verdict]}
+      <span className="sr-only">{agrees ? '(same as Rollcheck)' : '(differs from Rollcheck)'}</span>
+    </span>
+  )
 }
 
 const NARROW = '(max-width: 639px)'
@@ -34,13 +50,13 @@ const FULL_RENDER_LIMIT = 200
 /** A register's margin mark: a thin coloured rule beside each row, always next to the text label. */
 const MARK = { eligible: 'border-l-ok', 'not-eligible': 'border-l-no', review: 'border-l-review-mark' } as const
 
-export function ResultsTable({ table, result, rows, columns, nameColumn, selected, onOpen }: Props) {
+export function ResultsTable({ table, result, rows, columns, nameColumn, selected, onOpen, formula }: Props) {
   const scroller = useRef<HTMLDivElement>(null)
   const narrow = useNarrow()
   const colIdx = columns.map((c) => table.headers.indexOf(c))
   const widths = columns.map((c) => (c === nameColumn ? 'minmax(140px, 200px)' : 'minmax(72px, 120px)'))
-  const template = `56px ${widths.join(' ')} 132px minmax(320px, 1fr)`
-  const minWidth = 56 + columns.reduce((w, c) => w + (c === nameColumn ? 140 : 80), 0) + 132 + 340
+  const template = `56px ${widths.join(' ')}${formula ? ' 140px' : ''} 132px minmax(320px, 1fr)`
+  const minWidth = 56 + columns.reduce((w, c) => w + (c === nameColumn ? 140 : 80), 0) + (formula ? 140 : 0) + 132 + 340
 
   // This component is not memoized, so the virtualizer's changing functions are safe here.
   // eslint-disable-next-line react-hooks/incompatible-library
@@ -72,6 +88,7 @@ export function ResultsTable({ table, result, rows, columns, nameColumn, selecte
             {columns.map((c) => (
               <span key={c} role="columnheader" className="th truncate" title={c}>{c}</span>
             ))}
+            {formula && <span role="columnheader" className="th text-no">Excel formula</span>}
             <span role="columnheader" className="th">Status</span>
             <span role="columnheader" className="th">Reason</span>
           </div>
@@ -114,6 +131,11 @@ export function ResultsTable({ table, result, rows, columns, nameColumn, selecte
                       ))}
                     </span>
                     <StatusBadge status={row.status} />
+                    {formula && (
+                      <span className="flex items-center gap-2 text-xs text-muted">
+                        Excel formula: <FormulaCell verdict={formula[i]!} agrees={formula[i] === row.status} />
+                      </span>
+                    )}
                     <span className="text-sm leading-5">{row.reasons.join(' ')}</span>
                   </span>
                 ) : (
@@ -124,6 +146,11 @@ export function ResultsTable({ table, result, rows, columns, nameColumn, selecte
                     {cells[c]!.kind === 'blank' ? <span className="text-muted italic">blank</span> : cells[c]!.raw}
                   </span>
                 ))}
+                {formula && (
+                  <span role="cell" className="px-3 py-2.5">
+                    <FormulaCell verdict={formula[i]!} agrees={formula[i] === row.status} />
+                  </span>
+                )}
                 <span role="cell" className="px-3 py-2.5"><StatusBadge status={row.status} /></span>
                 <span role="cell" className="px-3 py-2.5 leading-5">{row.reasons.join(' ')}</span>
                   </>

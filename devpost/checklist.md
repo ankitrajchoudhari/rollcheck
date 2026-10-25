@@ -116,6 +116,8 @@ Activity mode: Prior practice connected, with app map.
 
 - [x] Clearer controls requested by the learner: one style and height for every input and dropdown (custom chevron, focus ring), conditions grouped by what they work on, column options show their type, a plain sentence under each rule, search with a clear button, Esc to clear and "/" to focus. Added `docs/excel-comparison.xlsx` (`npm run compare`) and a README section showing where the obvious Excel formula goes wrong on the sample.
 
+- [x] Excel formula comparison on Results (`src/engine/formula.ts`, 7 engine tests + 1 UI test): 29 of 120 sample students differ, matching `docs/excel-comparison.xlsx`.
+
 ## Revisions
 - `classifyCell` lives in `src/engine/classify.ts` and file reading entry point in `src/engine/read.ts` (not `normalise.ts`) — keeps the never-guess rule in one small, separately tested module.
 - Edge-case .xlsx/.csv fixtures are generated inside the tests (`src/engine/test-helpers.ts`) instead of stored in `tests/fixtures/` — same coverage, no binary files to keep in sync.

@@ -123,6 +123,12 @@ Source: `scope.md > The Unique Kernel`.
 - [ ] Opening a row shows every original column, including ones not in the table.
 - [ ] Rule impact numbers for the demo match a manual count of the sample data.
 
+### Comparing With a Spreadsheet Formula
+Added after shipping, at the learner's request, to make the kernel visible against the usual alternative.
+- "Compare with an Excel formula" on Results shows the formula an office would type for the current rules (e.g. `=IF(AND(absences<=10, G3>=10), "Eligible", "Not eligible")`), what it would decide for every student under Excel's comparison rules, and how many students it decides differently.
+- Rows where the formula disagrees are marked; "Show only these" filters to them. The comparison never changes Rollcheck's own result.
+- [ ] On the sample data, 29 of 120 students differ, matching `docs/excel-comparison.xlsx`.
+
 ### Saving and Sharing Results
 - **Download results (.xlsx):**
   - Sheet 1 "Results": all original columns unchanged + Status + Reason, in original row order.

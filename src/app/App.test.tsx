@@ -174,4 +174,23 @@ describe('main flow', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(document.activeElement?.getAttribute('role')).toBe('row')
   })
+
+  it('compares with the usual Excel formula and shows where it differs', async () => {
+    const bytes = readFileSync('public/sample/rollcheck-sample.csv')
+    vi.stubGlobal('fetch', async () => new Response(bytes))
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(screen.getByRole('button', { name: 'Try sample data' }))
+    await screen.findByText('Your file, as read')
+    await user.click(screen.getByRole('button', { name: /Check students/ }))
+    await screen.findByRole('heading', { name: '120 of 120 students checked' })
+    await user.click(screen.getByRole('button', { name: 'Compare with an Excel formula' }))
+    expect(screen.getByText('=IF(AND(absences<=10, G3>=10), "Eligible", "Not eligible")')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Show only these 29' }))
+    expect(screen.getByText(/Showing 29 of 120/)).toBeInTheDocument()
+    expect(screen.getAllByText('(differs from Rollcheck)').length).toBe(29)
+    await user.click(screen.getByRole('button', { name: /Hide comparison/ }))
+    expect(screen.getByText(/Showing 120 of 120/)).toBeInTheDocument()
+  })
 })
+

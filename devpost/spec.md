@@ -142,6 +142,9 @@ JSON `{ "app": "rollcheck", "version": 1, "rules": [...], "matchColumns": [...],
 ### Engine — Check Pipeline (`src/engine/check.ts`)
 `checkTable(table, rules, options, onProgress?) → CheckResult` — runs evaluate → review → group → invariant. The single entry point the worker (and tests) call.
 
+### Engine — Formula Comparison (`src/engine/formula.ts`)
+Implements `prd.md > Comparing With a Spreadsheet Formula`. `compareWithFormula(table, rules, result)` evaluates the usual `IF(AND(...))` per row with Excel's rules (text > any number, empty = 0 or "", `=` case-insensitive without trimming, a number never equals text, a cell of spaces is not blank) and returns each verdict plus the rows that differ. `formulaText(rules)` writes the formula with column names. Runs on the page; it does not touch `CheckResult`.
+
 ### Worker (`src/worker/rollcheck.worker.ts`, `src/worker/client.ts`)
 Implements `prd.md > Reading the File` (large files), `prd.md > Checking Students`.
 - Messages in: `{ type: 'read', bytes, fileName, sheet? }`, `{ type: 'check', rules, options }`, `{ type: 'reset' }`. Messages out: `progress { phase, done, total }`, `table`, `result`, `error { code, message }`.
