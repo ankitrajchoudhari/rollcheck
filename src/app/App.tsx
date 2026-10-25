@@ -10,7 +10,7 @@ import { newRule, RuleBuilder } from '../ui/rules/RuleBuilder'
 import { RulesStage } from '../ui/rules/RulesStage'
 import { SAMPLE_FILE, sampleColumns, sampleRules } from '../ui/sampleRules'
 import { ResultsStage } from '../ui/results/ResultsStage'
-import { Header, Stepper } from '../ui/shell/Shell'
+import { Footer, Header } from '../ui/shell/Shell'
 import { EngineClient } from '../worker/client'
 import { initialState, reducer, type Stage } from './state'
 
@@ -144,9 +144,13 @@ export function App({ engine: given }: { engine?: EngineClient }) {
 
   return (
     <div className="min-h-screen">
-      <Header />
-      <main className="mx-auto max-w-[1200px] space-y-6 px-4 py-6 sm:px-6">
-        <Stepper stage={state.stage} reachable={reachable} onGo={(stage) => dispatch({ type: 'goTo', stage })} />
+      <Header
+        stage={state.stage}
+        reachable={reachable}
+        onGo={(stage) => dispatch({ type: 'goTo', stage })}
+        file={state.table ? { name: state.table.fileName, rows: state.table.rows.length } : null}
+      />
+      <main className="mx-auto max-w-[1200px] space-y-6 px-4 py-8 sm:px-6">
 
         {state.stage === 'file' && (
           <FileStage
@@ -256,6 +260,7 @@ export function App({ engine: given }: { engine?: EngineClient }) {
           />
         )}
       </main>
+      <Footer />
     </div>
   )
 }

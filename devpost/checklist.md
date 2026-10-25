@@ -110,6 +110,10 @@ Edit outcome: Not applicable.
 Reflection: Offered once; optional.
 Activity mode: Prior practice connected, with app map.
 
+## Final Review — after shipping
+
+- [x] Unified design pass requested by the learner ("more unified, not like AI"): one header with stage tabs and a file chip, one panel style throughout, ledger-style tally instead of dashboard cards, status margin marks on rows, ruled-paper drop zone, consistent table headings and footer, stacked student entries and a three-column tally on phones. Verified at 390 and 1280px in light and dark, 138 tests passing.
+
 ## Revisions
 - `classifyCell` lives in `src/engine/classify.ts` and file reading entry point in `src/engine/read.ts` (not `normalise.ts`) — keeps the never-guess rule in one small, separately tested module.
 - Edge-case .xlsx/.csv fixtures are generated inside the tests (`src/engine/test-helpers.ts`) instead of stored in `tests/fixtures/` — same coverage, no binary files to keep in sync.
@@ -124,3 +128,4 @@ Activity mode: Prior practice connected, with app map.
 - The page imports a light engine entry (`src/engine/core.ts`) and loads the .xlsx exporter and the in-thread fallback on demand — the build showed SheetJS bundled into the page (833 KB); the page is now 325 KB and SheetJS loads only in the worker or on Download.
 - `npm ci` cannot run in the working folder while dev/preview servers hold native files open on Windows; CI steps were verified instead in a fresh clone (npm ci, type-check, lint, 138 tests, build).
 - Deployment target changed from GitHub Pages to Vercel at ship time, at the learner's request (`vercel.json`; the Pages workflow was removed). The spec allowed either.
+- The print report is now built only while printing (beforeprint/afterprint) — it had been rendering every shown row hidden in the page, which made search on 60,000 rows take ~20 s; back to ~115 ms.

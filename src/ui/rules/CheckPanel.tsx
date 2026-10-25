@@ -1,6 +1,7 @@
 import { ArrowRight, TriangleAlert } from 'lucide-react'
 import { isNumberRule, splitOptions, type Rule, type Table } from '../../engine/core'
 import { conditionLabel, copy, fmt } from '../copy'
+import { Section } from '../shell/Section'
 import { BusyLine } from '../shell/Shell'
 
 /** A rule in plain words, or null while it is still incomplete. */
@@ -32,9 +33,8 @@ export function CheckPanel({ table, rules, idColumn, nameColumn, matchColumns, b
   const lines = rules.map((r) => describeRule(r, table.headers))
   const margins = [...new Set(rules.filter((r) => isNumberRule(r.condition) && r.margin > 0).map((r) => r.margin))]
   return (
-    <div className="rounded-md border border-line bg-surface">
-      <p className="eyebrow border-b border-line px-4 py-2.5">Your check</p>
-      <div className="space-y-4 px-4 py-4 text-sm">
+    <Section title="Your check" hint="Updates as you edit the rules.">
+      <div className="space-y-4 text-sm">
         <div>
           <p className="font-medium">A student is Eligible when</p>
           {rules.length === 0 ? (
@@ -74,6 +74,6 @@ export function CheckPanel({ table, rules, idColumn, nameColumn, matchColumns, b
           {copy.startOver}: choose another file
         </button>
       </div>
-    </div>
+    </Section>
   )
 }

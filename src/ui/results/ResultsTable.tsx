@@ -1,5 +1,5 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { useRef } from 'react'
+import { useRef, useSyncExternalStore } from 'react'
 import type { CheckResult, Table } from '../../engine/core'
 import { StatusBadge } from './Status'
 
@@ -15,11 +15,28 @@ interface Props {
   onOpen: (index: number) => void
 }
 
+const NARROW = '(max-width: 639px)'
+/** True on phone-width screens, where each student is shown as a stacked entry instead of a wide row. */
+function useNarrow() {
+  return useSyncExternalStore(
+    (cb) => {
+      const m = window.matchMedia?.(NARROW)
+      m?.addEventListener('change', cb)
+      return () => m?.removeEventListener('change', cb)
+    },
+    () => window.matchMedia?.(NARROW).matches ?? false,
+    () => false,
+  )
+}
+
 /** Small results render in full; large ones render only the rows on screen, so 50,000 students scroll smoothly. */
 const FULL_RENDER_LIMIT = 200
+/** A register's margin mark: a thin coloured rule beside each row, always next to the text label. */
+const MARK = { eligible: 'border-l-ok', 'not-eligible': 'border-l-no', review: 'border-l-review-mark' } as const
 
 export function ResultsTable({ table, result, rows, columns, nameColumn, selected, onOpen }: Props) {
   const scroller = useRef<HTMLDivElement>(null)
+  const narrow = useNarrow()
   const colIdx = columns.map((c) => table.headers.indexOf(c))
   const widths = columns.map((c) => (c === nameColumn ? 'minmax(140px, 200px)' : 'minmax(72px, 120px)'))
   const template = `56px ${widths.join(' ')} 132px minmax(320px, 1fr)`
@@ -43,20 +60,20 @@ export function ResultsTable({ table, result, rows, columns, nameColumn, selecte
   return (
     <div
       ref={scroller}
-      className="relative max-h-[70vh] overflow-auto rounded-md border border-line bg-surface print:hidden"
+      className="relative max-h-[70vh] overflow-auto bg-surface print:hidden"
       role="table"
       aria-label="Students"
       aria-rowcount={rows.length + 1}
     >
-      <div style={{ minWidth }}>
-        <div role="rowgroup" className="sticky top-0 z-10 border-b border-line bg-bg">
-          <div role="row" className="grid text-left text-xs text-muted" style={{ gridTemplateColumns: template }} aria-rowindex={1}>
-            <span role="columnheader" className="px-3 py-2 font-medium">Row</span>
+      <div style={narrow ? undefined : { minWidth }}>
+        <div role="rowgroup" className={`sticky top-0 z-10 border-b border-line bg-surface ${narrow ? 'sr-only' : ''}`}>
+          <div role="row" className="grid border-l-[3px] border-l-transparent" style={{ gridTemplateColumns: template }} aria-rowindex={1}>
+            <span role="columnheader" className="th">Row</span>
             {columns.map((c) => (
-              <span key={c} role="columnheader" className="truncate px-3 py-2 font-medium" title={c}>{c}</span>
+              <span key={c} role="columnheader" className="th truncate" title={c}>{c}</span>
             ))}
-            <span role="columnheader" className="px-3 py-2 font-medium">Status</span>
-            <span role="columnheader" className="px-3 py-2 font-medium">Reason</span>
+            <span role="columnheader" className="th">Status</span>
+            <span role="columnheader" className="th">Reason</span>
           </div>
         </div>
         <div role="rowgroup" style={full ? undefined : { height: virtual.getTotalSize(), position: 'relative' }}>
@@ -81,19 +98,36 @@ export function ResultsTable({ table, result, rows, columns, nameColumn, selecte
                     onOpen(i)
                   }
                 }}
-                className={`${full ? '' : 'absolute left-0'} grid w-full cursor-pointer border-b border-line text-sm transition-colors hover:bg-accent-soft/60 focus-visible:-outline-offset-2 ${
+                className={`${full ? '' : 'absolute left-0'} grid w-full cursor-pointer border-b border-l-[3px] border-b-line text-sm transition-colors hover:bg-bg focus-visible:-outline-offset-2 ${MARK[row.status]} ${
                   selected === i ? 'bg-accent-soft' : ''
                 }`}
-                style={{ gridTemplateColumns: template, ...(full ? {} : { transform: `translateY(${v.start}px)` }) }}
+                style={{ ...(narrow ? {} : { gridTemplateColumns: template }), ...(full ? {} : { transform: `translateY(${v.start}px)` }) }}
               >
+                {narrow ? (
+                  <span role="cell" className="col-span-full flex flex-col gap-1 px-3 py-3">
+                    <span className="flex items-baseline gap-2 text-xs">
+                      <span className="tnum font-mono text-muted">Row {table.rowNumbers[i]}</span>
+                      {colIdx.map((c, k) => (
+                        <span key={k} className={`truncate whitespace-pre ${columns[k] === nameColumn ? 'text-sm font-medium' : 'font-mono'}`}>
+                          {k < 2 ? (cells[c]!.kind === 'blank' ? '—' : cells[c]!.raw) : null}
+                        </span>
+                      ))}
+                    </span>
+                    <StatusBadge status={row.status} />
+                    <span className="text-sm leading-5">{row.reasons.join(' ')}</span>
+                  </span>
+                ) : (
+                  <>
                 <span role="cell" className="tnum px-3 py-2.5 font-mono text-xs text-muted">{table.rowNumbers[i]}</span>
                 {colIdx.map((c, k) => (
-                  <span key={k} role="cell" className="truncate px-3 py-2.5 font-mono text-xs whitespace-pre" title={cells[c]!.raw}>
+                  <span key={k} role="cell" className={`truncate px-3 py-2.5 whitespace-pre ${columns[k] === nameColumn ? 'text-sm' : 'font-mono text-xs'}`} title={cells[c]!.raw}>
                     {cells[c]!.kind === 'blank' ? <span className="text-muted italic">blank</span> : cells[c]!.raw}
                   </span>
                 ))}
                 <span role="cell" className="px-3 py-2.5"><StatusBadge status={row.status} /></span>
                 <span role="cell" className="px-3 py-2.5 leading-5">{row.reasons.join(' ')}</span>
+                  </>
+                )}
               </div>
             )
           })}

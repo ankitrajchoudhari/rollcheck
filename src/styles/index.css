@@ -111,6 +111,15 @@
   .field[aria-invalid="true"] { @apply border-no; }
   .label { @apply text-xs font-medium text-muted; }
   .eyebrow { @apply font-mono text-xs uppercase tracking-wider text-muted; }
+  /* Ruled register paper: faint lines every 28px and a margin rule. */
+  .ruled {
+    background-color: var(--surface);
+    background-image:
+      linear-gradient(to right, transparent 47px, color-mix(in srgb, var(--accent) 28%, transparent) 47px, color-mix(in srgb, var(--accent) 28%, transparent) 48px, transparent 48px),
+      repeating-linear-gradient(to bottom, transparent 0 27px, color-mix(in srgb, var(--line) 55%, transparent) 27px 28px);
+  }
+  /* Column headings in tables: small, spaced, muted — one style everywhere. */
+  .th { @apply px-3 py-2 text-left font-mono text-[11px] font-medium tracking-wider text-muted uppercase; }
 }
 
 @media (prefers-reduced-motion: reduce) {

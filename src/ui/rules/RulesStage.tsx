@@ -28,7 +28,8 @@ export function RulesStage({ table, sheets, idColumn, nameColumn, matchColumns, 
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight">Set the eligibility rules</h1>
+        <p className="eyebrow">Step 2 of 3</p>
+        <h1 className="mt-1 text-xl font-semibold tracking-tight">Set the eligibility rules</h1>
         <p className="mt-1 max-w-[70ch] text-sm text-muted">
           Choose what a student must meet. Rollcheck checks all {fmt(table.rows.length)} rows and sends anything uncertain to Needs review instead of guessing.
         </p>

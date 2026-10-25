@@ -56,10 +56,10 @@ export function PreviewTable({ table, types }: { table: Table; types: ColumnType
         <table className="w-full border-collapse text-xs">
           <thead>
             <tr>
-              <th scope="col" className="sticky left-0 border-b border-r border-line bg-bg px-2 py-2 text-left font-medium text-muted">Row</th>
+              <th scope="col" className="th sticky left-0 border-r border-b border-line bg-surface">Row</th>
               {table.headers.map((h, i) => (
-                <th key={h} scope="col" className="border-b border-line bg-bg px-3 py-2 text-left align-bottom font-medium whitespace-nowrap">
-                  <span className="block">{h}</span>
+                <th key={h} scope="col" className="border-b border-line bg-surface px-3 py-2 text-left align-bottom font-medium whitespace-nowrap">
+                  <span className="block text-xs text-ink">{h}</span>
                   <span className={`mt-0.5 inline-block rounded-sm px-1 font-mono text-[11px] ${TYPE_STYLE[types[i]!]}`}>{types[i]}</span>
                 </th>
               ))}

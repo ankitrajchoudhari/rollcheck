@@ -1,5 +1,6 @@
 import { RotateCcw, Search, SlidersHorizontal, X } from 'lucide-react'
-import { useDeferredValue, useMemo, type ReactNode } from 'react'
+import { useDeferredValue, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { flushSync } from 'react-dom'
 import type { CheckResult, Rule, Status, Table } from '../../engine/core'
 import { describeRule } from '../rules/CheckPanel'
 import { copy, fmt, statusLabel } from '../copy'
@@ -17,7 +18,7 @@ export function CheckedLine({ result, fileName }: { result: CheckResult; fileNam
   const { total, eligible, notEligible, review } = result.counts
   return (
     <div>
-      <p className="eyebrow">Results · {fileName}</p>
+      <p className="eyebrow">Step 3 of 3 · Results · {fileName}</p>
       <h1 className="tnum mt-1 text-xl font-semibold tracking-tight">
         {fmt(total)} of {fmt(total)} students checked
       </h1>
@@ -28,51 +29,46 @@ export function CheckedLine({ result, fileName }: { result: CheckResult; fileNam
   )
 }
 
-/** One bar, three segments, proportional to the counts. Text labels sit in the counters. */
-export function SplitBar({ result }: { result: CheckResult }) {
-  const seg: [Status, string][] = [
-    ['eligible', 'bg-ok'],
-    ['not-eligible', 'bg-no'],
-    ['review', 'bg-review-mark'],
-  ]
-  return (
-    <div className="flex h-2 overflow-hidden rounded-sm bg-line" aria-hidden="true">
-      {seg.map(([s, c]) => (
-        <span key={s} className={c} style={{ width: pct(countOf(result, s), result.counts.total) }} />
-      ))}
-    </div>
-  )
-}
+const BAR: Record<Status, string> = { eligible: 'bg-ok', 'not-eligible': 'bg-no', review: 'bg-review-mark' }
+const TOP: Record<Status, string> = { eligible: 'border-t-ok', 'not-eligible': 'border-t-no', review: 'border-t-review-mark' }
 
+/** The tally: three ruled columns that also filter the table, with one proportion bar underneath. */
 export function Counters({ result, filter, onFilter }: { result: CheckResult; filter: Status | null; onFilter: (s: Status | null) => void }) {
   return (
-    <div className="grid gap-3 sm:grid-cols-3" role="group" aria-label="Filter by group">
-      {STATUSES.map((s) => {
-        const Icon = STATUS_ICON[s]
-        const on = filter === s
-        const n = countOf(result, s)
-        return (
-          <button
-            key={s}
-            type="button"
-            aria-pressed={on}
-            onClick={() => onFilter(on ? null : s)}
-            className={`flex flex-col items-start gap-1 rounded-md border px-4 py-3 text-left transition-colors ${
-              on ? `${STATUS_SOFT[s]} border-current ${STATUS_TEXT[s]}` : 'border-line bg-surface hover:border-line-strong'
-            }`}
-          >
-            <span className={`flex items-center gap-1.5 text-sm font-medium ${STATUS_TEXT[s]}`}>
-              <Icon size={16} className={STATUS_ICON_COLOR[s]} aria-hidden="true" />
-              {statusLabel[s]}
-            </span>
-            <span className="flex items-baseline gap-2">
-              <span className="tnum text-xl font-semibold text-ink" data-count={n}>{fmt(n)}</span>
-              <span className="tnum text-xs text-muted">{pct(n, result.counts.total)}</span>
-            </span>
-            <span className="text-xs text-muted">{on ? 'Showing only these · click to show all' : 'Click to show only these'}</span>
-          </button>
-        )
-      })}
+    <div className="overflow-hidden rounded-md border border-line bg-surface">
+      <div className="grid grid-cols-3" role="group" aria-label="Filter by group">
+        {STATUSES.map((s) => {
+          const Icon = STATUS_ICON[s]
+          const on = filter === s
+          const n = countOf(result, s)
+          return (
+            <button
+              key={s}
+              type="button"
+              aria-pressed={on}
+              onClick={() => onFilter(on ? null : s)}
+              className={`group flex min-w-0 flex-col items-start gap-1 border-t-2 border-r border-r-line px-3 py-3 text-left transition-colors last:border-r-0 sm:px-5 sm:py-4 ${
+                on ? `${STATUS_SOFT[s]} ${TOP[s]}` : 'border-t-transparent hover:bg-bg'
+              }`}
+            >
+              <span className={`flex items-center gap-1.5 text-xs font-medium sm:text-sm ${STATUS_TEXT[s]}`}>
+                <Icon size={16} className={`shrink-0 ${STATUS_ICON_COLOR[s]}`} aria-hidden="true" />
+                {statusLabel[s]}
+              </span>
+              <span className="flex flex-wrap items-baseline gap-x-2">
+                <span className="tnum text-2xl font-semibold text-ink sm:text-[32px] sm:leading-10" data-count={n}>{fmt(n)}</span>
+                <span className="tnum text-sm text-muted">{pct(n, result.counts.total)}</span>
+              </span>
+              <span className={`hidden text-xs sm:inline ${on ? STATUS_TEXT[s] : 'text-muted'}`}>{on ? 'Showing only these · click to show all' : 'Show only these'}</span>
+            </button>
+          )
+        })}
+      </div>
+      <div className="flex h-1.5" aria-hidden="true">
+        {STATUSES.map((s) => (
+          <span key={s} className={BAR[s]} style={{ width: pct(countOf(result, s), result.counts.total) }} />
+        ))}
+      </div>
     </div>
   )
 }
@@ -84,14 +80,14 @@ export function RuleImpact({ table, result, rules }: { table: Table; result: Che
     { key: 'dups', label: 'Possible duplicate students', mono: false, failed: null, review: result.likelyDuplicateRows },
   ]
   return (
-    <section aria-labelledby="impact-title" className="rounded-md border border-line bg-surface">
-      <div className="flex flex-wrap items-baseline gap-x-3 border-b border-line px-4 py-2.5">
-        <h2 id="impact-title" className="text-sm font-semibold">What each check did</h2>
+    <section aria-labelledby="impact-title" className="overflow-hidden rounded-md border border-line bg-surface">
+      <header className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-line bg-bg/60 px-4 py-3 sm:px-5">
+        <h2 id="impact-title" className="text-base font-semibold">What each check did</h2>
         <p className="text-xs text-muted">A student can be counted by more than one check.</p>
-      </div>
+      </header>
       <ul className="grid divide-line sm:grid-cols-2 sm:divide-x lg:grid-cols-4">
         {items.map((it) => (
-          <li key={it.key} className="border-b border-line px-4 py-3 last:border-b-0 sm:border-b-0">
+          <li key={it.key} className="border-b border-line px-5 py-3 last:border-b-0 sm:border-b-0">
             <p className={`truncate text-xs ${it.mono ? 'font-mono' : ''}`} title={it.label}>{it.label}</p>
             <p className="tnum mt-1 flex flex-wrap gap-x-3 text-sm">
               {it.failed !== null && (
@@ -130,8 +126,28 @@ interface Props {
   onStartOver: () => void
 }
 
+/**
+ * True only while the browser prints. The paper report lists every shown row, so it is
+ * rendered just for printing (Print button or Ctrl+P) instead of sitting hidden in the page.
+ */
+function usePrinting() {
+  const [printing, setPrinting] = useState(false)
+  useEffect(() => {
+    const before = () => flushSync(() => setPrinting(true))
+    const after = () => setPrinting(false)
+    window.addEventListener('beforeprint', before)
+    window.addEventListener('afterprint', after)
+    return () => {
+      window.removeEventListener('beforeprint', before)
+      window.removeEventListener('afterprint', after)
+    }
+  }, [])
+  return printing
+}
+
 export function ResultsStage(p: Props) {
   const { table, result, rules, filter } = p
+  const printing = usePrinting()
   const query = useDeferredValue(p.search.trim().toLowerCase())
   const haystack = useMemo(() => table.rows.map((cells) => cells.map((c) => c.raw).join('\u0001').toLowerCase()), [table])
   const shown = useMemo(
@@ -142,75 +158,73 @@ export function ResultsStage(p: Props) {
 
   return (
     <>
-    <PrintReport table={table} result={result} checked={p.checked} rows={shown} filter={filter} search={p.search} />
+    {printing && <PrintReport table={table} result={result} checked={p.checked} rows={shown} filter={filter} search={p.search} />}
     <div className="space-y-5 print:hidden">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <CheckedLine result={result} fileName={table.fileName} />
-        <div className="flex flex-wrap gap-2 print:hidden">
-          {p.actions}
-          <button type="button" className="btn" onClick={p.onChangeRules}>
-            <SlidersHorizontal size={16} aria-hidden="true" />
-            {copy.changeRules}
-          </button>
-          <button type="button" className="btn btn-quiet" onClick={p.onStartOver}>
-            <RotateCcw size={16} aria-hidden="true" />
-            {copy.startOver}
-          </button>
+        <div>
+          <CheckedLine result={result} fileName={table.fileName} />
+          <div className="mt-2 flex flex-wrap gap-1">
+            <button type="button" className="btn btn-quiet -ml-2 px-2 py-1 text-xs" onClick={p.onChangeRules}>
+              <SlidersHorizontal size={14} aria-hidden="true" />
+              {copy.changeRules}
+            </button>
+            <button type="button" className="btn btn-quiet px-2 py-1 text-xs" onClick={p.onStartOver}>
+              <RotateCcw size={14} aria-hidden="true" />
+              {copy.startOver}
+            </button>
+          </div>
         </div>
+        <div className="flex flex-wrap gap-2">{p.actions}</div>
       </div>
 
-      <div className="space-y-3">
-        <Counters result={result} filter={filter} onFilter={p.onFilter} />
-        <SplitBar result={result} />
-      </div>
+      <Counters result={result} filter={filter} onFilter={p.onFilter} />
 
       <RuleImpact table={table} result={result} rules={rules} />
 
-      <section aria-labelledby="students-title" className="min-w-0 space-y-3">
-          <div className="flex flex-wrap items-center gap-3 print:hidden">
-            <h2 id="students-title" className="text-base font-semibold">Students</h2>
-            <span className="tnum text-xs text-muted" aria-live="polite">
-              Showing {fmt(shown.length)} of {fmt(result.counts.total)}
-              {filter && ` · ${statusLabel[filter]} only`}
-            </span>
-            {filter && (
-              <button type="button" className="btn btn-quiet px-2 py-0.5 text-xs" onClick={() => p.onFilter(null)}>
-                <X size={14} aria-hidden="true" /> Show all
-              </button>
-            )}
-            <div className="relative ml-auto w-full sm:w-72">
-              <Search size={16} className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-muted" aria-hidden="true" />
-              <label htmlFor="search" className="sr-only">Search students</label>
-              <input
-                id="search"
-                type="search"
-                className="field w-full pl-8"
-                placeholder="Search ID, name or any value"
-                value={p.search}
-                onChange={(e) => p.onSearch(e.target.value)}
-              />
-            </div>
-          </div>
-          <p className="text-xs text-muted print:hidden">Needs review first, then Not eligible, then Eligible. Click a row to see every cell and reason.</p>
-
-          {shown.length === 0 ? (
-            <div className="rounded-md border border-dashed border-line-strong px-4 py-8 text-center text-sm text-muted">
-              {query ? (
-                <>
-                  No students match &lsquo;{p.search.trim()}&rsquo;.{' '}
-                  <button type="button" className="text-accent underline underline-offset-2" onClick={() => p.onSearch('')}>
-                    Clear search
-                  </button>
-                </>
-              ) : (
-                EMPTY[filter ?? 'review']
-              )}
-            </div>
-          ) : (
-            <ResultsTable table={table} result={result} rows={shown} columns={columns} nameColumn={p.nameColumn} selected={p.selectedRow} onOpen={(i) => p.onOpenRow(i)} />
+      <section aria-labelledby="students-title" className="min-w-0 overflow-hidden rounded-md border border-line bg-surface">
+        <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-line bg-bg/60 px-4 py-3 sm:px-5">
+          <h2 id="students-title" className="text-base font-semibold">Students</h2>
+          <span className="tnum text-xs text-muted" aria-live="polite">
+            Showing {fmt(shown.length)} of {fmt(result.counts.total)}
+            {filter && ` · ${statusLabel[filter]} only`}
+          </span>
+          {filter && (
+            <button type="button" className="btn btn-quiet px-2 py-0.5 text-xs" onClick={() => p.onFilter(null)}>
+              <X size={14} aria-hidden="true" /> Show all
+            </button>
           )}
-      </section>
+          <div className="relative w-full sm:ml-auto sm:w-72">
+            <Search size={16} className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-muted" aria-hidden="true" />
+            <label htmlFor="search" className="sr-only">Search students</label>
+            <input
+              id="search"
+              type="search"
+              className="field w-full pl-8"
+              placeholder="Search ID, name or any value"
+              value={p.search}
+              onChange={(e) => p.onSearch(e.target.value)}
+            />
+          </div>
+          <p className="w-full text-xs text-muted">Needs review first, then Not eligible, then Eligible. Click a row to see every cell and reason.</p>
+        </header>
 
+        {shown.length === 0 ? (
+          <div className="px-4 py-10 text-center text-sm text-muted">
+            {query ? (
+              <>
+                No students match &lsquo;{p.search.trim()}&rsquo;.{' '}
+                <button type="button" className="text-accent underline underline-offset-2" onClick={() => p.onSearch('')}>
+                  Clear search
+                </button>
+              </>
+            ) : (
+              EMPTY[filter ?? 'review']
+            )}
+          </div>
+        ) : (
+          <ResultsTable table={table} result={result} rows={shown} columns={columns} nameColumn={p.nameColumn} selected={p.selectedRow} onOpen={(i) => p.onOpenRow(i)} />
+        )}
+      </section>
 
       {p.selectedRow !== null && <RowDetail table={table} result={result} rules={rules} index={p.selectedRow} onClose={() => p.onOpenRow(null)} />}
     </div>
