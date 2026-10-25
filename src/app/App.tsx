@@ -9,6 +9,7 @@ import { FileStage } from '../ui/file/FileStage'
 import { CheckPanel } from '../ui/rules/CheckPanel'
 import { newRule, RuleBuilder } from '../ui/rules/RuleBuilder'
 import { RulesStage } from '../ui/rules/RulesStage'
+import { SAMPLE_FILE, sampleColumns, sampleRules } from '../ui/sampleRules'
 import { ResultsStage } from '../ui/results/ResultsStage'
 import { Header, Stepper } from '../ui/shell/Shell'
 import { EngineClient } from '../worker/client'
@@ -58,6 +59,17 @@ export function App({ engine: given }: { engine?: EngineClient }) {
     },
     [openBytes],
   )
+
+  const trySample = async () => {
+    dispatch({ type: 'busy', label: copy.reading })
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}sample/${SAMPLE_FILE}`)
+      if (!res.ok) throw new Error('The sample file could not be loaded.')
+      await openBytes(SAMPLE_FILE, new Uint8Array(await res.arrayBuffer()), sampleRules(), sampleColumns)
+    } catch (e) {
+      dispatch({ type: 'failed', text: messageOf(e) })
+    }
+  }
 
   const chooseSheet = async (sheet: string) => {
     dispatch({ type: 'busy', label: copy.reading })
@@ -140,6 +152,7 @@ export function App({ engine: given }: { engine?: EngineClient }) {
             busy={state.busy ? { label: state.busy.label, detail: progressText(state.busy.progress) } : null}
             error={state.message?.tone === 'error' ? state.message.text : null}
             onFile={openFile}
+            onSample={trySample}
           />
         )}
 

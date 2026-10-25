@@ -1,0 +1,97 @@
+{
+  "source": "data/source/student-mat.csv",
+  "output": "public/sample/rollcheck-sample.csv",
+  "students": 120,
+  "traps": [
+    {
+      "row": 13,
+      "id": "S012",
+      "column": "G3",
+      "from": "12",
+      "to": "9.6",
+      "what": "Decimal grade just under the limit",
+      "expect": "G3 is 9.6, within 1 of the 10 limit."
+    },
+    {
+      "row": 22,
+      "id": "S021",
+      "column": "absences",
+      "from": "0",
+      "to": "AB",
+      "what": "\"AB\" (absent) instead of a number",
+      "expect": "absences is 'AB', not a number."
+    },
+    {
+      "row": 32,
+      "id": "S031",
+      "column": "absences",
+      "from": "0",
+      "to": "",
+      "what": "Blank cell in a rule column",
+      "expect": "absences is blank."
+    },
+    {
+      "row": 44,
+      "id": "S043",
+      "column": "absences",
+      "from": "2",
+      "to": "10 ",
+      "what": "Number with a trailing space, stored as text",
+      "expect": "absences is '10 ', a number stored as text."
+    },
+    {
+      "row": 52,
+      "id": "S051",
+      "column": "G3",
+      "from": "13",
+      "to": "12%",
+      "what": "Number stored as text with a percent sign",
+      "expect": "G3 is '12%', a number stored as text."
+    },
+    {
+      "row": 67,
+      "id": "S066",
+      "column": "G3",
+      "from": "15",
+      "to": "9,8",
+      "what": "Comma used as the decimal mark",
+      "expect": "G3 is '9,8', which uses a comma."
+    },
+    {
+      "row": 72,
+      "id": "S071",
+      "column": "Student Name",
+      "from": "",
+      "to": "Pedro Ribeiro",
+      "what": "Same student entered again as S119 \"P. RIBEIRO\" (row 120), same age and school",
+      "expect": "Possible duplicate of row 120"
+    },
+    {
+      "row": 120,
+      "id": "S119",
+      "column": "Student Name",
+      "from": "",
+      "to": "P. RIBEIRO",
+      "what": "Inserted copy of S071 with the name spelled \"P. RIBEIRO\"",
+      "expect": "Possible duplicate of row 72"
+    },
+    {
+      "row": 82,
+      "id": "S081",
+      "column": "Student ID",
+      "from": "",
+      "to": "S081",
+      "what": "Student ID also given to a different student in row 121",
+      "expect": "Student ID S081 appears twice (rows 82 and 121)."
+    },
+    {
+      "row": 121,
+      "id": "S081",
+      "column": "Student ID",
+      "from": "",
+      "to": "S081",
+      "what": "Inserted student \"Vasco Nunes\" given the existing ID S081",
+      "expect": "Student ID S081 appears twice (rows 82 and 121)."
+    }
+  ]
+}

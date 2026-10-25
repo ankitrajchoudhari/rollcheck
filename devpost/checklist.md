@@ -59,7 +59,7 @@ Build mode: fast (chosen by the learner in advance)
   Learner check: Download results and open the file in Excel; save the rule set, Start over, load it back.
   Commit: `Add xlsx export, rule sets and print`
 
-- [ ] **6. One click shows the whole story with sample data**
+- [x] **6. One click shows the whole story with sample data**
   Becomes usable: "Try sample data" loads the bundled ~120-row demo sheet with demo rules and match columns pre-filled; every documented trap lands in Needs review with its reason.
   Why now: The demo video depends on it, and it's the end-to-end proof of `scope.md > What "Working" Looks Like`. Needs the full journey to exist first.
   PRD ref: `prd.md > Sample Data`, `prd.md > Checking Students`
@@ -119,3 +119,5 @@ Activity mode:
 - A semicolon CSV opened in Excel and re-saved arrives with every line in column A (seen at the slice-3 checkpoint) — the engine now detects a single filled column whose header holds a delimiter, splits it, and tells the user (`splitSingleColumn` in `src/engine/read.ts`).
 - Rules screen redesigned after checkpoint feedback ("not aligned, dull, not responsive, not understandable") — rules as cards on a fixed grid (no long option can widen a field), a live plain-English "Your check" panel with the Check button beside the rules from 900px and right under them on narrow screens, titled register-style sections, a worked example on the File screen, a proportion bar on Results, and each stage opens scrolled to the top. Same `prd.md > Look and Feel` direction, applied more fully.
 - Results of 200 rows or fewer render in full; only larger results are virtualised — full rendering is simpler for screen readers and print, and lets the jsdom UI tests see rows. Verified virtualisation separately on 60,000 rows in Edge (about 24 rows in the DOM, search in ~110 ms).
+- Rule impact moved from a side panel to a strip above the results table, and column widths now follow content — at 1280px the side panel squeezed the table and clipped the Reason column, the most important one.
+- The "75%"-style trap is `12%` in G3 (a percentage in a 0–20 grade column), and the sample keeps all 33 source columns so the row detail shows a full real record.

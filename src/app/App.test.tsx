@@ -2,11 +2,14 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { readFileSync } from 'node:fs'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup } from '@testing-library/react'
 import { App } from './App'
 
-afterEach(cleanup)
+afterEach(() => {
+  cleanup()
+  vi.unstubAllGlobals()
+})
 
 const csv = (name: string, text: string) => new File([text], name, { type: 'text/csv' })
 const UCI = () => new File([readFileSync('data/source/student-mat.csv')], 'student-mat.csv', { type: 'text/csv' })
@@ -124,5 +127,23 @@ describe('main flow', () => {
     expect(within(dialog).getByText(/Possible duplicate of row 4/)).toBeInTheDocument()
     await user.keyboard('{Escape}')
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('Try sample data loads the demo sheet with the demo rules, and every trap is caught', async () => {
+    const bytes = readFileSync('public/sample/rollcheck-sample.csv')
+    vi.stubGlobal('fetch', async () => new Response(bytes))
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(screen.getByRole('button', { name: 'Try sample data' }))
+    await screen.findByText('Your file, as read')
+    expect(screen.getByLabelText('Column', { selector: '#rule-1-col' })).toHaveValue('absences')
+    expect(screen.getByLabelText('Column', { selector: '#rule-2-col' })).toHaveValue('G3')
+    expect(screen.getByLabelText('ID column')).toHaveValue('Student ID')
+    await user.click(screen.getByRole('button', { name: /Check students/ }))
+    expect(await screen.findByRole('heading', { name: '120 of 120 students checked' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /^Needs review/ }))
+    for (const text of ['G3 is 9.6, within 1', "absences is 'AB', not a number", 'absences is blank.', "G3 is '9,8', which uses a comma", 'Possible duplicate of row', 'appears twice']) {
+      expect(screen.getAllByText((content) => content.includes(text)).length).toBeGreaterThan(0)
+    }
   })
 })

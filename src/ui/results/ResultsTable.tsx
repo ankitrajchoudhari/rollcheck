@@ -9,6 +9,8 @@ interface Props {
   /** Row indices to show, in display order. */
   rows: number[]
   columns: string[]
+  /** The name column gets more room. */
+  nameColumn?: string
   selected: number | null
   onOpen: (index: number) => void
 }
@@ -16,11 +18,12 @@ interface Props {
 /** Small results render in full; large ones render only the rows on screen, so 50,000 students scroll smoothly. */
 const FULL_RENDER_LIMIT = 200
 
-export function ResultsTable({ table, result, rows, columns, selected, onOpen }: Props) {
+export function ResultsTable({ table, result, rows, columns, nameColumn, selected, onOpen }: Props) {
   const scroller = useRef<HTMLDivElement>(null)
   const colIdx = columns.map((c) => table.headers.indexOf(c))
-  const template = `64px ${columns.map(() => 'minmax(88px, 160px)').join(' ')} 136px minmax(280px, 1fr)`
-  const minWidth = 64 + columns.length * 104 + 136 + 300
+  const widths = columns.map((c) => (c === nameColumn ? 'minmax(140px, 200px)' : 'minmax(72px, 120px)'))
+  const template = `56px ${widths.join(' ')} 132px minmax(320px, 1fr)`
+  const minWidth = 56 + columns.reduce((w, c) => w + (c === nameColumn ? 140 : 80), 0) + 132 + 340
 
   // This component is not memoized, so the virtualizer's changing functions are safe here.
   // eslint-disable-next-line react-hooks/incompatible-library

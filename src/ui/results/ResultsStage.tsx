@@ -3,7 +3,6 @@ import { useDeferredValue, useMemo, type ReactNode } from 'react'
 import type { CheckResult, Rule, Status, Table } from '../../engine'
 import { describeRule } from '../rules/CheckPanel'
 import { copy, fmt, statusLabel } from '../copy'
-import { Section } from '../shell/Section'
 import type { CheckedWith } from '../../io/exportXlsx'
 import { PrintReport } from './PrintReport'
 import { ResultsTable } from './ResultsTable'
@@ -79,41 +78,31 @@ export function Counters({ result, filter, onFilter }: { result: CheckResult; fi
 }
 
 export function RuleImpact({ table, result, rules }: { table: Table; result: CheckResult; rules: Rule[] }) {
+  const items = [
+    ...rules.map((rule, k) => ({ key: rule.id, label: describeRule(rule, table.headers) ?? rule.column, mono: true, failed: result.impact[k]!.failed, review: result.impact[k]!.review })),
+    { key: 'ids', label: 'Repeated IDs', mono: false, failed: null, review: result.duplicateIdRows },
+    { key: 'dups', label: 'Possible duplicate students', mono: false, failed: null, review: result.likelyDuplicateRows },
+  ]
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse text-sm">
-        <thead>
-          <tr className="border-b border-line text-left text-xs text-muted">
-            <th scope="col" className="py-2 pr-4 font-medium">Check</th>
-            <th scope="col" className="py-2 pr-4 text-right font-medium">Made not eligible</th>
-            <th scope="col" className="py-2 text-right font-medium">Sent to review</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rules.map((rule, k) => {
-            const imp = result.impact[k]!
-            return (
-              <tr key={rule.id} className="border-b border-line">
-                <td className="py-2 pr-4 font-mono text-xs">{describeRule(rule, table.headers)}</td>
-                <td className="tnum py-2 pr-4 text-right">{fmt(imp.failed)}</td>
-                <td className="tnum py-2 text-right">{fmt(imp.review)}</td>
-              </tr>
-            )
-          })}
-          <tr className="border-b border-line">
-            <td className="py-2 pr-4 text-xs">Repeated IDs</td>
-            <td className="tnum py-2 pr-4 text-right text-muted">—</td>
-            <td className="tnum py-2 text-right">{fmt(result.duplicateIdRows)}</td>
-          </tr>
-          <tr>
-            <td className="py-2 pr-4 text-xs">Possible duplicate students</td>
-            <td className="tnum py-2 pr-4 text-right text-muted">—</td>
-            <td className="tnum py-2 text-right">{fmt(result.likelyDuplicateRows)}</td>
-          </tr>
-        </tbody>
-      </table>
-      <p className="mt-2 text-xs text-muted">A student can be counted by more than one check.</p>
-    </div>
+    <section aria-labelledby="impact-title" className="rounded-md border border-line bg-surface">
+      <div className="flex flex-wrap items-baseline gap-x-3 border-b border-line px-4 py-2.5">
+        <h2 id="impact-title" className="text-sm font-semibold">What each check did</h2>
+        <p className="text-xs text-muted">A student can be counted by more than one check.</p>
+      </div>
+      <ul className="grid divide-line sm:grid-cols-2 sm:divide-x lg:grid-cols-4">
+        {items.map((it) => (
+          <li key={it.key} className="border-b border-line px-4 py-3 last:border-b-0 sm:border-b-0">
+            <p className={`truncate text-xs ${it.mono ? 'font-mono' : ''}`} title={it.label}>{it.label}</p>
+            <p className="tnum mt-1 flex flex-wrap gap-x-3 text-sm">
+              {it.failed !== null && (
+                <span><b className="font-semibold text-no">{fmt(it.failed)}</b> <span className="text-muted">not eligible</span></span>
+              )}
+              <span><b className="font-semibold text-review">{fmt(it.review)}</b> <span className="text-muted">to review</span></span>
+            </p>
+          </li>
+        ))}
+      </ul>
+    </section>
   )
 }
 
@@ -175,8 +164,9 @@ export function ResultsStage(p: Props) {
         <SplitBar result={result} />
       </div>
 
-      <div className="grid items-start gap-5 min-[1100px]:grid-cols-[minmax(0,1fr)_340px]">
-        <section aria-labelledby="students-title" className="min-w-0 space-y-3">
+      <RuleImpact table={table} result={result} rules={rules} />
+
+      <section aria-labelledby="students-title" className="min-w-0 space-y-3">
           <div className="flex flex-wrap items-center gap-3 print:hidden">
             <h2 id="students-title" className="text-base font-semibold">Students</h2>
             <span className="tnum text-xs text-muted" aria-live="polite">
@@ -217,16 +207,10 @@ export function ResultsStage(p: Props) {
               )}
             </div>
           ) : (
-            <ResultsTable table={table} result={result} rows={shown} columns={columns} selected={p.selectedRow} onOpen={(i) => p.onOpenRow(i)} />
+            <ResultsTable table={table} result={result} rows={shown} columns={columns} nameColumn={p.nameColumn} selected={p.selectedRow} onOpen={(i) => p.onOpenRow(i)} />
           )}
-        </section>
+      </section>
 
-        <div className="min-[1100px]:sticky min-[1100px]:top-4">
-          <Section title="What each rule did" hint="Counts per check, across all students.">
-            <RuleImpact table={table} result={result} rules={rules} />
-          </Section>
-        </div>
-      </div>
 
       {p.selectedRow !== null && <RowDetail table={table} result={result} rules={rules} index={p.selectedRow} onClose={() => p.onOpenRow(null)} />}
     </div>
