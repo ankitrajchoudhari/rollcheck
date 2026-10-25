@@ -20,3 +20,9 @@ coverage/
 # Editor / OS
 .DS_Store
 Thumbs.db
+
+# Vercel local link
+.vercel
+
+.vercel
+.env*

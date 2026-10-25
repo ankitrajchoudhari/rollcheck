@@ -2,6 +2,8 @@
 
 **Check a student spreadsheet against eligibility rules — in the browser, without guessing.**
 
+[Live demo](https://rollcheck-six.vercel.app) · [Planning docs](devpost/) · [Data sources](DATA_SOURCES.md)
+
 Rollcheck sorts every student in an exported sheet into **Eligible**, **Not eligible** or **Needs review**, each with a one-sentence, plain-English reason, and gives you the result back as an Excel file. The file is processed on your computer and never uploaded.
 
 ![Results for the sample data: 120 of 120 students checked, 56 eligible, 35 not eligible, 29 need review](docs/screenshots/3-results.png)
@@ -45,7 +47,7 @@ Duplicates are **flagged, never merged**. Nothing in your data is changed.
 
 ## Live demo
 
-Deployed on Vercel: *link added at publish time*.
+**https://rollcheck-six.vercel.app** — click **Try sample data**, then **Check students**. Everything runs in your browser.
 
 ## Run it locally
 

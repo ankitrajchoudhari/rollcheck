@@ -55,7 +55,7 @@ Node 22 (installed: v22.23.2). npm 10.
 - Tests: `npm test`. All gates: `npm run check` (type-check, lint, tests, build).
 - Demo recording: local dev server or the deployed URL → click **Try sample data** → **Check students**.
 - Submission needs the video and the public GitHub repo; deployment is optional and extra.
-- **Deploy: Vercel** (chosen by the learner at ship time; GitHub Pages was the original recommendation). `vercel.json` runs `npm ci` and `npm run build` and serves `dist/`. Vite `base: './'` keeps the build portable to any static host.
+- **Deploy: Vercel** (chosen by the learner at ship time; GitHub Pages was the original recommendation). `vercel.json` runs `npm ci` and `npm run build` and serves `dist/`. Vite `base: './'` keeps the build portable to any static host. Live: https://rollcheck-six.vercel.app (auto-deploys from `main`). Repository: https://github.com/ankitrajchoudhari/rollcheck
 
 ## Look and Feel
 Implements `prd.md > Look and Feel`.
