@@ -34,6 +34,19 @@ describe('reading .csv', () => {
     expect(t.notices[0]!.message).toBe('The first 3 rows were empty. Row 4 is used as the header.')
   })
 
+  it('skips a title line above the header and says so', () => {
+    const t = read('a.csv', 'Exam Cell - Semester 3,,,\nPrinted 12 March,,,\n,,,\nRoll No,Name,Attendance,Fees\n21CS001,Aarav,82,Cleared\n')
+    expect(t.headers).toEqual(['Roll No', 'Name', 'Attendance', 'Fees'])
+    expect(t.rowNumbers).toEqual([5])
+    expect(t.notices[0]!.message).toBe('The first 3 rows look like a title, not column names. Row 4 is used as the header.')
+  })
+
+  it('keeps a narrow table whose header is its first row', () => {
+    const t = read('a.csv', 'ID,Score\nS1,5\nS2,\n')
+    expect(t.headers).toEqual(['ID', 'Score'])
+    expect(t.notices).toEqual([])
+  })
+
   it('renames blank and duplicate column names and tells the user', () => {
     const t = read('a.csv', 'ID,,Score,Score,score\n1,2,3,4,5\n')
     expect(t.headers).toEqual(['ID', 'Column 2', 'Score', 'Score (2)', 'score (3)'])

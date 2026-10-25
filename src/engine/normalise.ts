@@ -10,6 +10,26 @@ export class NoRowsError extends Error {
 }
 
 export const isBlankRow = (row: RawCell[]) => row.every((c) => c.raw.trim() === '')
+const filledCount = (row: RawCell[]) => row.reduce((n, c) => n + (c.raw.trim() === '' ? 0 : 1), 0)
+
+/**
+ * The header is the first row about as wide as the table. Blank rows and title lines above it
+ * ("Exam Cell — Semester 3", a date line) are skipped. Looks at the first 30 filled rows.
+ */
+export function findHeaderRow(grid: RawCell[][]): number {
+  const first = grid.findIndex((row) => !isBlankRow(row))
+  if (first === -1) return -1
+  let widest = 0
+  for (let i = first, seen = 0; i < grid.length && seen < 30; i++) {
+    const n = filledCount(grid[i]!)
+    if (n > 0) seen++
+    widest = Math.max(widest, n)
+  }
+  const needed = Math.max(2, Math.ceil(widest * 0.6))
+  if (widest < 2) return first
+  const at = grid.findIndex((row, i) => i >= first && filledCount(row) >= needed)
+  return at === -1 ? first : at
+}
 
 /** Make header names usable as rule targets: no blanks, no duplicates. */
 export function uniqueHeaders(names: string[]): { headers: string[]; notices: Notice[] } {
@@ -41,7 +61,7 @@ export function uniqueHeaders(names: string[]): { headers: string[]; notices: No
 /** Turn a parsed grid into a table: header row found, names fixed, every cell classified. */
 export function buildTable(parsed: ParsedGrid, fileName: string): Table {
   const { grid, firstRowNumber } = parsed
-  const headerAt = grid.findIndex((row) => !isBlankRow(row))
+  const headerAt = findHeaderRow(grid)
   if (headerAt === -1) throw new NoRowsError()
 
   let end = grid.length
@@ -55,9 +75,13 @@ export function buildTable(parsed: ParsedGrid, fileName: string): Table {
   const { headers, notices } = uniqueHeaders(names)
 
   if (headerAt > 0) {
+    const skippedText = grid.slice(0, headerAt).some((row) => !isBlankRow(row))
+    const rows = `The first ${headerAt} row${headerAt === 1 ? '' : 's'}`
     notices.unshift({
       kind: 'header-row',
-      message: `The first ${headerAt} row${headerAt === 1 ? ' was' : 's were'} empty. Row ${firstRowNumber + headerAt} is used as the header.`,
+      message: skippedText
+        ? `${rows} look${headerAt === 1 ? 's' : ''} like a title, not column names. Row ${firstRowNumber + headerAt} is used as the header.`
+        : `${rows} ${headerAt === 1 ? 'was' : 'were'} empty. Row ${firstRowNumber + headerAt} is used as the header.`,
     })
   }
   for (const c of parsed.percentColumns) {

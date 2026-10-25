@@ -131,3 +131,4 @@ Activity mode: Prior practice connected, with app map.
 - `npm ci` cannot run in the working folder while dev/preview servers hold native files open on Windows; CI steps were verified instead in a fresh clone (npm ci, type-check, lint, 138 tests, build).
 - Deployment target changed from GitHub Pages to Vercel at ship time, at the learner's request (`vercel.json`; the Pages workflow was removed). The spec allowed either.
 - The print report is now built only while printing (beforeprint/afterprint) — it had been rendering every shown row hidden in the page, which made search on 60,000 rows take ~20 s; back to ~115 ms.
+- Header detection now skips title lines as well as blank rows (the header is the first row about as wide as the table) — found when testing an unseen exam-cell style workbook with "Exam Cell — Semester 3" above the column names; the PRD only covered blank rows.

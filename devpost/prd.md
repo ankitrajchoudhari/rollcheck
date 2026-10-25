@@ -68,7 +68,7 @@ Source: `scope.md > Inspiration & Identity`.
 Source: `scope.md > The POC Boundary`.
 - Accepts .csv and .xlsx, by drop or file picker. The file never leaves the computer.
 - CSV delimiter detected automatically (comma, semicolon, tab).
-- First non-empty row is the header row.
+- The header row is the first row about as wide as the table: blank rows and title lines above it are skipped, and the user is told.
 - Duplicate or blank column names are renamed ("Column 7", "Attendance (2)") and the user is told which.
 - Every cell is shown exactly as it appears in the file: leading-zero IDs keep their zeros, dates stay as displayed, numbers are never rounded or reformatted.
 - ID and name columns are auto-detected from header names (e.g. "Roll No", "ID", "Name", "Student Name") and can be changed.
