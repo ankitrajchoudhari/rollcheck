@@ -69,7 +69,7 @@ Build mode: fast (chosen by the learner in advance)
   Learner check: Start over → Try sample data → Check students, and find each trap in Needs review.
   Commit: `Add sample data with documented traps`
 
-- [ ] **7. It feels finished: dark mode, every state, accessibility**
+- [x] **7. It feels finished: dark mode, every state, accessibility**
   Becomes usable: Theme toggle with re-tuned dark palette, every empty/loading/error state designed, keyboard-only journey, visible focus, aria-live counts, AA contrast, reduced motion, no breakage at phone width.
   Why now: Polish once behaviour is settled, so it isn't redone. Judged under Design.
   PRD ref: `prd.md > Look and Feel`, `prd.md > States and Boundaries`

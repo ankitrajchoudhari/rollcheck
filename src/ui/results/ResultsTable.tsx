@@ -89,7 +89,7 @@ export function ResultsTable({ table, result, rows, columns, nameColumn, selecte
                 <span role="cell" className="tnum px-3 py-2.5 font-mono text-xs text-muted">{table.rowNumbers[i]}</span>
                 {colIdx.map((c, k) => (
                   <span key={k} role="cell" className="truncate px-3 py-2.5 font-mono text-xs whitespace-pre" title={cells[c]!.raw}>
-                    {cells[c]!.kind === 'blank' ? <span className="text-muted/60">blank</span> : cells[c]!.raw}
+                    {cells[c]!.kind === 'blank' ? <span className="text-muted italic">blank</span> : cells[c]!.raw}
                   </span>
                 ))}
                 <span role="cell" className="px-3 py-2.5"><StatusBadge status={row.status} /></span>

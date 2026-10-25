@@ -71,7 +71,7 @@ export function PreviewTable({ table, types }: { table: Table; types: ColumnType
                 <td className="tnum sticky left-0 border-r border-line bg-surface px-2 py-1.5 font-mono text-muted">{table.rowNumbers[r]}</td>
                 {row.map((cell, c) => (
                   <td key={c} className="px-3 py-1.5 font-mono whitespace-pre">
-                    {cell.kind === 'blank' ? <span className="text-muted/60">—</span> : cell.raw}
+                    {cell.kind === 'blank' ? <span className="text-muted italic">—</span> : cell.raw}
                   </td>
                 ))}
               </tr>

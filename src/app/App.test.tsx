@@ -146,4 +146,32 @@ describe('main flow', () => {
       expect(screen.getAllByText((content) => content.includes(text)).length).toBeGreaterThan(0)
     }
   })
+
+  it('the whole journey works with the keyboard only', async () => {
+    const bytes = readFileSync('public/sample/rollcheck-sample.csv')
+    vi.stubGlobal('fetch', async () => new Response(bytes))
+    const user = userEvent.setup()
+    render(<App />)
+    const tabTo = async (match: (el: Element) => boolean) => {
+      for (let i = 0; i < 300 && !(document.activeElement && match(document.activeElement)); i++) await user.tab()
+      expect(document.activeElement && match(document.activeElement)).toBe(true)
+    }
+    const named = (re: RegExp) => (el: Element) => re.test(el.getAttribute('aria-label') ?? el.textContent ?? '')
+
+    await tabTo(named(/^Try sample data$/))
+    await user.keyboard('{Enter}')
+    await screen.findByText('Your file, as read')
+    await tabTo(named(/^Check students/))
+    await user.keyboard('{Enter}')
+    await screen.findByRole('heading', { name: '120 of 120 students checked' })
+    await tabTo(named(/^Needs review/))
+    await user.keyboard(' ')
+    expect(screen.getByText(/Showing 29 of 120/)).toBeInTheDocument()
+    await tabTo((el) => el.getAttribute('role') === 'row')
+    await user.keyboard('{Enter}')
+    expect(await screen.findByRole('dialog')).toBeInTheDocument()
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(document.activeElement?.getAttribute('role')).toBe('row')
+  })
 })

@@ -121,7 +121,7 @@ export function RowDetail({ table, result, rules, index, onClose }: Props) {
                   <div key={h} className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-3 px-3 py-1.5">
                     <dt className="truncate text-muted" title={h}>{h}</dt>
                     <dd className="font-mono break-words whitespace-pre-wrap">
-                      {cell.kind === 'blank' ? <span className="text-muted/60">blank</span> : cell.raw}
+                      {cell.kind === 'blank' ? <span className="text-muted italic">blank</span> : cell.raw}
                       {cell.shown !== undefined && <span className="ml-2 font-sans text-muted">Excel shows {cell.shown}</span>}
                       {cell.kind === 'number' && cell.raw.endsWith('%') && cell.value !== null && (
                         <span className="ml-2 font-sans text-muted">stored as {Number((cell.value / 100).toPrecision(15))}</span>
