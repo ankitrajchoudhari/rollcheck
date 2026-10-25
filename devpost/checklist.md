@@ -49,7 +49,7 @@ Build mode: fast (chosen by the learner in advance)
   Learner check: Click "Needs review", search a student ID, open a row, press Esc.
   Commit: `Add results filtering, search and row detail`
 
-- [ ] **5. You can take results away: download, rule sets, print**
+- [x] **5. You can take results away: download, rule sets, print**
   Becomes usable: Download .xlsx (Results, Rules used, Needs review), Save rule set .json, Load rule set with missing-column remap, Print view.
   Why now: Closes the core loop (`scope.md > The Core Loop`: download the result) and the next-cycle reuse.
   PRD ref: `prd.md > Saving and Sharing Results`, `prd.md > States and Boundaries`

@@ -4,6 +4,8 @@ import type { CheckResult, Rule, Status, Table } from '../../engine'
 import { describeRule } from '../rules/CheckPanel'
 import { copy, fmt, statusLabel } from '../copy'
 import { Section } from '../shell/Section'
+import type { CheckedWith } from '../../io/exportXlsx'
+import { PrintReport } from './PrintReport'
 import { ResultsTable } from './ResultsTable'
 import { RowDetail } from './RowDetail'
 import { STATUS_ICON, STATUS_ICON_COLOR, STATUS_SOFT, STATUS_TEXT } from './Status'
@@ -125,6 +127,7 @@ interface Props {
   table: Table
   result: CheckResult
   rules: Rule[]
+  checked: CheckedWith
   idColumn: string
   nameColumn: string
   filter: Status | null
@@ -149,7 +152,9 @@ export function ResultsStage(p: Props) {
   const columns = [...new Set([p.idColumn, p.nameColumn, ...rules.map((r) => r.column)].filter(Boolean))]
 
   return (
-    <div className="space-y-5">
+    <>
+    <PrintReport table={table} result={result} checked={p.checked} rows={shown} filter={filter} search={p.search} />
+    <div className="space-y-5 print:hidden">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <CheckedLine result={result} fileName={table.fileName} />
         <div className="flex flex-wrap gap-2 print:hidden">
@@ -225,5 +230,6 @@ export function ResultsStage(p: Props) {
 
       {p.selectedRow !== null && <RowDetail table={table} result={result} rules={rules} index={p.selectedRow} onClose={() => p.onOpenRow(null)} />}
     </div>
+    </>
   )
 }

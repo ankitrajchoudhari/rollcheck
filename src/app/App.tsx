@@ -1,5 +1,8 @@
+import { Download, FileDown, FileUp, Printer } from 'lucide-react'
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
-import { detectColumns, ruleProblem, type Progress, type Rule } from '../engine'
+import { detectColumns, parseRuleSet, ruleProblem, serializeRuleSet, type Progress, type Rule } from '../engine'
+import { download, XLSX_TYPE } from '../io/download'
+import { buildResultsWorkbook, resultsFileName, workbookBytes } from '../io/exportXlsx'
 import { readFileBytes } from '../io/readFile'
 import { copy, fmt } from '../ui/copy'
 import { FileStage } from '../ui/file/FileStage'
@@ -89,6 +92,36 @@ export function App({ engine: given }: { engine?: EngineClient }) {
     dispatch({ type: 'startOver' })
   }
 
+  const downloadResults = () => {
+    if (!state.table || !state.result || !state.checked) return
+    download(resultsFileName(state.table.fileName), workbookBytes(buildResultsWorkbook(state.table, state.result, state.checked)), XLSX_TYPE)
+  }
+
+  const saveRuleSet = () => {
+    const src = state.stage === 'results' && state.checked ? state.checked : state
+    const json = serializeRuleSet({ rules: src.rules, idColumn: src.idColumn, nameColumn: src.nameColumn, matchColumns: src.matchColumns })
+    download('rollcheck-rules.json', json, 'application/json')
+  }
+
+  const ruleSetInput = useRef<HTMLInputElement>(null)
+  const loadRuleSet = async (file: File) => {
+    if (!state.table) return
+    try {
+      const { ruleSet, missingColumns } = parseRuleSet(await file.text(), state.table.headers)
+      setShowProblems(missingColumns.length > 0)
+      dispatch({
+        type: 'ruleSetLoaded',
+        rules: ruleSet.rules.map((r) => ({ ...r, id: newRule().id })),
+        ...(ruleSet.idColumn ? { idColumn: ruleSet.idColumn } : {}),
+        ...(ruleSet.nameColumn ? { nameColumn: ruleSet.nameColumn } : {}),
+        matchColumns: ruleSet.matchColumns,
+        missingColumns,
+      })
+    } catch (e) {
+      dispatch({ type: 'failed', text: messageOf(e) })
+    }
+  }
+
   // Each stage opens at its top, not wherever the last one was scrolled to.
   useEffect(() => {
     window.scrollTo?.({ top: 0 })
@@ -121,6 +154,27 @@ export function App({ engine: given }: { engine?: EngineClient }) {
             message={state.message}
             onSheet={chooseSheet}
             onColumns={(c) => dispatch({ type: 'columns', ...c })}
+            ruleActions={
+              <>
+                <button type="button" className="btn px-2.5 py-1 text-xs" onClick={() => ruleSetInput.current?.click()}>
+                  <FileUp size={16} aria-hidden="true" />
+                  Load rule set
+                </button>
+                <input
+                  ref={ruleSetInput}
+                  type="file"
+                  accept=".json,application/json"
+                  className="sr-only"
+                  tabIndex={-1}
+                  aria-label="Load rule set"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0]
+                    e.target.value = ''
+                    if (f) void loadRuleSet(f)
+                  }}
+                />
+              </>
+            }
             aside={
               <CheckPanel
                 table={state.table}
@@ -158,6 +212,23 @@ export function App({ engine: given }: { engine?: EngineClient }) {
             table={state.table}
             result={state.result}
             rules={state.checked.rules}
+            checked={state.checked}
+            actions={
+              <>
+                <button type="button" className="btn btn-primary" onClick={downloadResults}>
+                  <Download size={16} aria-hidden="true" />
+                  Download results (.xlsx)
+                </button>
+                <button type="button" className="btn" onClick={saveRuleSet}>
+                  <FileDown size={16} aria-hidden="true" />
+                  Save rule set
+                </button>
+                <button type="button" className="btn" onClick={() => window.print()}>
+                  <Printer size={16} aria-hidden="true" />
+                  Print
+                </button>
+              </>
+            }
             idColumn={state.checked.idColumn}
             nameColumn={state.checked.nameColumn}
             filter={state.filter}

@@ -116,3 +116,8 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+@media print {
+  @page { margin: 12mm; }
+  html, body { background: #fff !important; color: #000; }
+}

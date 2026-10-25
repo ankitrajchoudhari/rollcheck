@@ -118,7 +118,12 @@ export function reducer(state: AppState, action: Action): AppState {
         nameColumn: action.nameColumn && headers.includes(action.nameColumn) ? action.nameColumn : state.nameColumn,
         matchColumns: keep(action.matchColumns, headers),
         missingColumns: action.missingColumns,
-        message: null,
+        message: action.missingColumns.length
+          ? {
+              tone: 'info',
+              text: `This rule set uses ${action.missingColumns.length === 1 ? 'a column' : 'columns'} this file does not have: ${action.missingColumns.map((c) => `"${c}"`).join(', ')}. Choose a column for each marked rule.`,
+            }
+          : { tone: 'info', text: `Rule set loaded: ${action.rules.length} rule${action.rules.length === 1 ? '' : 's'}.` },
       }
     }
     case 'checked':
