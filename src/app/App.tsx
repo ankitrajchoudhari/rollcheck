@@ -1,8 +1,7 @@
 import { Download, FileDown, FileUp, Printer } from 'lucide-react'
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
-import { detectColumns, parseRuleSet, ruleProblem, serializeRuleSet, type Progress, type Rule } from '../engine'
+import { detectColumns, parseRuleSet, ruleProblem, serializeRuleSet, type Progress, type Rule } from '../engine/core'
 import { download, XLSX_TYPE } from '../io/download'
-import { buildResultsWorkbook, resultsFileName, workbookBytes } from '../io/exportXlsx'
 import { readFileBytes } from '../io/readFile'
 import { copy, fmt } from '../ui/copy'
 import { FileStage } from '../ui/file/FileStage'
@@ -104,8 +103,10 @@ export function App({ engine: given }: { engine?: EngineClient }) {
     dispatch({ type: 'startOver' })
   }
 
-  const downloadResults = () => {
+  const downloadResults = async () => {
     if (!state.table || !state.result || !state.checked) return
+    // SheetJS is only needed here, so it loads on the first download.
+    const { buildResultsWorkbook, resultsFileName, workbookBytes } = await import('../io/exportXlsx')
     download(resultsFileName(state.table.fileName), workbookBytes(buildResultsWorkbook(state.table, state.result, state.checked)), XLSX_TYPE)
   }
 

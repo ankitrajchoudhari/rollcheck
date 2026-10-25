@@ -1,4 +1,4 @@
-import type { Rule } from '../engine'
+import type { Rule } from '../engine/core'
 
 // "Try sample data": the demo rules and columns for public/sample/rollcheck-sample.csv.
 export const SAMPLE_FILE = 'rollcheck-sample.csv'

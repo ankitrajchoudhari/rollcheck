@@ -1,4 +1,4 @@
-import { UnsupportedFileError } from '../engine'
+import { UnsupportedFileError } from '../engine/core'
 
 /** Check the extension before reading anything, then hand back the bytes. */
 export async function readFileBytes(file: File): Promise<Uint8Array> {

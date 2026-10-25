@@ -1,6 +1,6 @@
-import type { CheckOptions, CheckResult, Progress, Rule } from '../engine'
+import type { CheckOptions, CheckResult, Progress, Rule } from '../engine/core'
 import type { EngineFailure, ReadReply, Reply, Request } from './protocol'
-import { EngineSession } from './session'
+import type { EngineSession } from './session'
 
 export class EngineError extends Error {
   constructor(failure: EngineFailure) {
@@ -15,7 +15,8 @@ type Body = Request extends infer R ? (R extends Request ? Omit<R, 'id'> : never
 /** Promise API over the background worker. Falls back to the same engine in-thread when Worker is unavailable (tests). */
 export class EngineClient {
   private worker: Worker | null = null
-  private session: EngineSession | null = null
+  /** In-thread fallback, loaded only when workers are unavailable (tests, very old browsers). */
+  private session: Promise<EngineSession> | null = null
   private pending = new Map<number, Pending>()
   private nextId = 1
 
@@ -24,16 +25,16 @@ export class EngineClient {
   }
 
   private start() {
-    if (typeof Worker === 'undefined') {
-      this.session = new EngineSession()
-      return
+    if (typeof Worker !== 'undefined') {
+      try {
+        this.worker = new Worker(new URL('./rollcheck.worker.ts', import.meta.url), { type: 'module' })
+        this.worker.onmessage = (e: MessageEvent<Reply>) => this.receive(e.data)
+        return
+      } catch {
+        this.worker = null
+      }
     }
-    try {
-      this.worker = new Worker(new URL('./rollcheck.worker.ts', import.meta.url), { type: 'module' })
-      this.worker.onmessage = (e: MessageEvent<Reply>) => this.receive(e.data)
-    } catch {
-      this.session = new EngineSession()
-    }
+    this.session = import('./session').then(({ EngineSession }) => new EngineSession())
   }
 
   private receive(reply: Reply) {
@@ -56,7 +57,7 @@ export class EngineClient {
         this.worker.postMessage(req)
       } else {
         // Yield first so the UI can paint "Reading…" before the synchronous work.
-        setTimeout(() => this.session!.handle(req, (r) => this.receive(r)), 0)
+        void this.session!.then((session) => setTimeout(() => session.handle(req, (r) => this.receive(r)), 0))
       }
     })
   }
@@ -83,12 +84,8 @@ export class EngineClient {
   reset() {
     for (const p of this.pending.values()) p.resolve({ id: 0, type: 'error', error: { name: 'Cancelled', message: '' } })
     this.pending.clear()
-    if (this.worker) {
-      this.worker.terminate()
-      this.worker = null
-      this.start()
-    } else {
-      this.session = new EngineSession()
-    }
+    this.worker?.terminate()
+    this.worker = null
+    this.start()
   }
 }

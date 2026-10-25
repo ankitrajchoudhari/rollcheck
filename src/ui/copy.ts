@@ -1,5 +1,5 @@
 // User-facing text. Short, calm, specific. No exclamation marks.
-import type { Condition, Status } from '../engine'
+import type { Condition, Status } from '../engine/core'
 
 export const copy = {
   product: 'Rollcheck',

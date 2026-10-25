@@ -1,5 +1,5 @@
-import type { CheckResult, Status, Table } from '../../engine'
-import { localTime, type CheckedWith } from '../../io/exportXlsx'
+import type { CheckResult, Status, Table } from '../../engine/core'
+import { localTime, type CheckedWith } from '../../io/time'
 import { describeRule } from '../rules/CheckPanel'
 import { fmt, statusLabel } from '../copy'
 

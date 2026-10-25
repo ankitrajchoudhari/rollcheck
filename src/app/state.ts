@@ -1,4 +1,4 @@
-import type { CheckResult, Progress, Rule, Status, Table } from '../engine'
+import type { CheckResult, Progress, Rule, Status, Table } from '../engine/core'
 
 export type Stage = 'file' | 'rules' | 'results'
 

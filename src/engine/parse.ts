@@ -3,19 +3,8 @@ import * as XLSX from 'xlsx'
 import { cleanNumber } from './classify'
 import type { OnProgress, RawCell } from './types'
 
-export class UnsupportedFileError extends Error {
-  constructor() {
-    super('Only .csv and .xlsx files are supported.')
-    this.name = 'UnsupportedFileError'
-  }
-}
-
-export class UnreadableFileError extends Error {
-  constructor() {
-    super('This file could not be read. Check that it opens in Excel, then try again.')
-    this.name = 'UnreadableFileError'
-  }
-}
+export { UnreadableFileError, UnsupportedFileError } from './errors'
+import { UnreadableFileError, UnsupportedFileError } from './errors'
 
 export type FileType = 'csv' | 'xlsx'
 

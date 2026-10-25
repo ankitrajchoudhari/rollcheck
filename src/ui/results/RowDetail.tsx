@@ -1,6 +1,6 @@
 import { X } from 'lucide-react'
 import { useEffect, useRef } from 'react'
-import type { CheckResult, OutcomeResult, Rule, Table } from '../../engine'
+import type { CheckResult, OutcomeResult, Rule, Table } from '../../engine/core'
 import { describeRule } from '../rules/CheckPanel'
 import { StatusBadge } from './Status'
 

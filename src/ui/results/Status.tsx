@@ -1,5 +1,5 @@
 import { CircleCheck, CircleX, TriangleAlert } from 'lucide-react'
-import type { Status } from '../../engine'
+import type { Status } from '../../engine/core'
 import { statusLabel } from '../copy'
 
 export const STATUS_ICON = { eligible: CircleCheck, 'not-eligible': CircleX, review: TriangleAlert } as const

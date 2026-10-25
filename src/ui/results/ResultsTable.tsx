@@ -1,6 +1,6 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useRef } from 'react'
-import type { CheckResult, Table } from '../../engine'
+import type { CheckResult, Table } from '../../engine/core'
 import { StatusBadge } from './Status'
 
 interface Props {

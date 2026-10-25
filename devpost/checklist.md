@@ -121,3 +121,5 @@ Activity mode:
 - Results of 200 rows or fewer render in full; only larger results are virtualised — full rendering is simpler for screen readers and print, and lets the jsdom UI tests see rows. Verified virtualisation separately on 60,000 rows in Edge (about 24 rows in the DOM, search in ~110 ms).
 - Rule impact moved from a side panel to a strip above the results table, and column widths now follow content — at 1280px the side panel squeezed the table and clipped the Reason column, the most important one.
 - The "75%"-style trap is `12%` in G3 (a percentage in a 0–20 grade column), and the sample keeps all 33 source columns so the row detail shows a full real record.
+- The page imports a light engine entry (`src/engine/core.ts`) and loads the .xlsx exporter and the in-thread fallback on demand — the build showed SheetJS bundled into the page (833 KB); the page is now 325 KB and SheetJS loads only in the worker or on Download.
+- `npm ci` cannot run in the working folder while dev/preview servers hold native files open on Windows; CI steps were verified instead in a fresh clone (npm ci, type-check, lint, 138 tests, build).

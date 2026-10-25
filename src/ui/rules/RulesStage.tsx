@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { Table } from '../../engine'
+import type { Table } from '../../engine/core'
 import { fmt } from '../copy'
 import { Section } from '../shell/Section'
 import { Notice } from '../shell/Shell'

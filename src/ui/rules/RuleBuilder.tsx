@@ -1,6 +1,6 @@
 import { ArrowDown, ArrowUp, Plus, Trash2, TriangleAlert } from 'lucide-react'
 import { useMemo } from 'react'
-import { columnStats, isMostlyNonNumeric, isNumberRule, MAX_RULES, ruleProblem, type Condition, type Rule, type Table } from '../../engine'
+import { columnStats, isMostlyNonNumeric, isNumberRule, MAX_RULES, ruleProblem, type Condition, type Rule, type Table } from '../../engine/core'
 import { conditionLabel, copy } from '../copy'
 
 let seq = 0

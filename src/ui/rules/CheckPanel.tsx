@@ -1,5 +1,5 @@
 import { ArrowRight, TriangleAlert } from 'lucide-react'
-import { isNumberRule, splitOptions, type Rule, type Table } from '../../engine'
+import { isNumberRule, splitOptions, type Rule, type Table } from '../../engine/core'
 import { conditionLabel, copy, fmt } from '../copy'
 import { BusyLine } from '../shell/Shell'
 

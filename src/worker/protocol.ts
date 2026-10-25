@@ -1,4 +1,4 @@
-import type { CheckOptions, CheckResult, Progress, Rule, Table } from '../engine'
+import type { CheckOptions, CheckResult, Progress, Rule, Table } from '../engine/core'
 
 export type Request =
   | { id: number; type: 'read'; fileName?: string; bytes?: Uint8Array; sheet?: string }

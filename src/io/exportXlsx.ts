@@ -1,14 +1,10 @@
 import * as XLSX from 'xlsx'
-import type { CheckResult, Rule, Table } from '../engine'
+import type { CheckResult, Table } from '../engine/core'
+import type { CheckedWith } from './time'
 import { conditionLabel, statusLabel } from '../ui/copy'
+import { localTime } from './time'
+export type { CheckedWith } from './time'
 
-export interface CheckedWith {
-  rules: Rule[]
-  idColumn: string
-  nameColumn: string
-  matchColumns: string[]
-  at: string
-}
 
 /** Every cell is written as text, exactly as read, so Excel cannot round or reformat it. */
 const textSheet = (rows: string[][]) => {
@@ -17,9 +13,6 @@ const textSheet = (rows: string[][]) => {
   return ws
 }
 
-export function localTime(iso: string) {
-  return new Date(iso).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })
-}
 
 export function buildResultsWorkbook(table: Table, result: CheckResult, checked: CheckedWith): XLSX.WorkBook {
   const header = [...table.headers, 'Status', 'Reason']

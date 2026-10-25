@@ -1,6 +1,6 @@
 import { X } from 'lucide-react'
 import { useMemo } from 'react'
-import { columnStats, columnType, type ColumnType, type Table } from '../../engine'
+import { columnStats, columnType, type ColumnType, type Table } from '../../engine/core'
 import { fmt } from '../copy'
 
 export function useColumnTypes(table: Table): ColumnType[] {
