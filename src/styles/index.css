@@ -141,6 +141,13 @@
   .th { @apply px-3 py-2 text-left font-mono text-[11px] font-medium tracking-wider text-muted uppercase; }
 }
 
+@media (pointer: coarse) {
+  .btn { min-height: 44px; }
+  .btn-icon { min-width: 44px; }
+  .field, .field-sm { min-height: 44px; font-size: 16px; }
+  .tap { display: inline-flex; align-items: center; min-height: 44px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }

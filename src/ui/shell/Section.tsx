@@ -28,7 +28,7 @@ export function Section({
           <h2 id={headingId} className="text-base font-semibold">{title}</h2>
           {hint && <p className="mt-0.5 text-xs text-muted">{hint}</p>}
         </div>
-        {action && <div className="shrink-0">{action}</div>}
+        {action && <div className="w-full sm:w-auto sm:shrink-0">{action}</div>}
       </header>
       <div className={flush ? '' : 'px-4 py-4 sm:px-5'}>{children}</div>
     </section>

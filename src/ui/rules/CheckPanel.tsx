@@ -70,7 +70,7 @@ export function CheckPanel({ table, rules, idColumn, nameColumn, matchColumns, b
             </p>
           )}
         </div>
-        <button type="button" className="text-xs text-muted underline-offset-2 hover:text-ink hover:underline" onClick={onStartOver}>
+        <button type="button" className="tap text-xs text-muted underline-offset-2 hover:text-ink hover:underline" onClick={onStartOver}>
           {copy.startOver}: choose another file
         </button>
       </div>

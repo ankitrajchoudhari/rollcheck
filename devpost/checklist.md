@@ -124,6 +124,8 @@ Activity mode: Prior practice connected, with app map.
 
 - [x] Decisions on Needs review rows (row detail, table tag, counter, export columns, print), 2 new tests; verified in Edge including the downloaded file.
 
+- [x] Phone pass at 320, 360, 375, 414px and landscape: no overflow or clipping on any screen; 44px touch targets and 16px inputs (no iOS zoom) on touch screens; formula panel and template picker no longer clipped at 320px.
+
 ## Revisions
 - `classifyCell` lives in `src/engine/classify.ts` and file reading entry point in `src/engine/read.ts` (not `normalise.ts`) — keeps the never-guess rule in one small, separately tested module.
 - Edge-case .xlsx/.csv fixtures are generated inside the tests (`src/engine/test-helpers.ts`) instead of stored in `tests/fixtures/` — same coverage, no binary files to keep in sync.

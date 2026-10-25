@@ -52,7 +52,7 @@ export function Counters({ result, filter, onFilter, decided = 0 }: { result: Ch
                 on ? `${STATUS_SOFT[s]} ${TOP[s]}` : 'border-t-transparent hover:bg-bg'
               }`}
             >
-              <span className={`flex items-center gap-1.5 text-xs font-medium sm:text-sm ${STATUS_TEXT[s]}`}>
+              <span className={`flex items-center gap-1 text-[11px] leading-4 font-medium min-[380px]:gap-1.5 min-[380px]:text-xs sm:text-sm ${STATUS_TEXT[s]}`}>
                 <Icon size={16} className={`shrink-0 ${STATUS_ICON_COLOR[s]}`} aria-hidden="true" />
                 {statusLabel[s]}
               </span>
@@ -169,19 +169,19 @@ function FormulaPanel({ total, differ, passed, failed, text, onlyDiffer, onOnlyD
       <header className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-line bg-no-soft px-4 py-3 sm:px-5">
         <FileSpreadsheet size={16} className="text-no" aria-hidden="true" />
         <h2 id="formula-title" className="text-base font-semibold">Compared with an Excel formula</h2>
-        <button type="button" className="btn btn-quiet ml-auto px-2 py-1 text-xs" onClick={onClose}>
+        <button type="button" className="btn btn-quiet px-2 py-1 text-xs sm:ml-auto" onClick={onClose}>
           <X size={14} aria-hidden="true" /> Hide comparison
         </button>
       </header>
       <div className="grid gap-4 px-4 py-4 sm:px-5 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
-        <div className="space-y-2 text-sm">
+        <div className="min-w-0 space-y-2 text-sm">
           <p className="text-xs text-muted">The formula an office would usually type for these rules:</p>
           <p className="overflow-x-auto rounded-sm border border-line bg-bg px-3 py-2 font-mono text-xs whitespace-nowrap">{text}</p>
           <p className="text-xs text-muted">
             A formula always answers. In Excel, text counts as larger than any number and an empty cell as 0, so “AB”, “9,8” or a blank get a firm answer nobody checked.
           </p>
         </div>
-        <div className="space-y-3">
+        <div className="min-w-0 space-y-3">
           <p className="text-sm">
             <b className="tnum text-[28px] leading-8 font-semibold text-no">{fmt(differ)}</b>
             <span className="text-muted"> of {fmt(total)} students get a different answer.</span>

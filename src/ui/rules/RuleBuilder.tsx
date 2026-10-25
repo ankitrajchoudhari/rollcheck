@@ -87,13 +87,13 @@ export function RuleBuilder({ table, rules, showProblems, missingColumns, onChan
                 <div className="flex items-center gap-2 border-b border-line px-3 py-1.5">
                   <span className="tnum font-mono text-xs font-medium text-muted">Rule {i + 1}</span>
                   <div className="ml-auto flex">
-                    <button type="button" className="btn btn-quiet px-1.5 py-1" aria-label={`Move rule ${i + 1} up`} disabled={i === 0} onClick={() => move(i, -1)}>
+                    <button type="button" className="btn btn-quiet btn-icon px-1.5 py-1" aria-label={`Move rule ${i + 1} up`} disabled={i === 0} onClick={() => move(i, -1)}>
                       <ArrowUp size={16} aria-hidden="true" />
                     </button>
-                    <button type="button" className="btn btn-quiet px-1.5 py-1" aria-label={`Move rule ${i + 1} down`} disabled={i === rules.length - 1} onClick={() => move(i, 1)}>
+                    <button type="button" className="btn btn-quiet btn-icon px-1.5 py-1" aria-label={`Move rule ${i + 1} down`} disabled={i === rules.length - 1} onClick={() => move(i, 1)}>
                       <ArrowDown size={16} aria-hidden="true" />
                     </button>
-                    <button type="button" className="btn btn-quiet px-1.5 py-1 hover:text-no" aria-label={`Remove rule ${i + 1}`} onClick={() => onChange(rules.filter((_, k) => k !== i))}>
+                    <button type="button" className="btn btn-quiet btn-icon px-1.5 py-1 hover:text-no" aria-label={`Remove rule ${i + 1}`} onClick={() => onChange(rules.filter((_, k) => k !== i))}>
                       <Trash2 size={16} aria-hidden="true" />
                     </button>
                   </div>

@@ -117,7 +117,7 @@ export function ColumnPickers({ headers, idColumn, nameColumn, matchColumns, onC
               {c}
               <button
                 type="button"
-                className="rounded-sm p-0.5 text-muted hover:text-ink"
+                className="tap btn-icon inline-flex min-h-7 min-w-7 items-center justify-center rounded-sm text-muted hover:text-ink"
                 aria-label={`Stop matching on ${c}`}
                 onClick={() => onChange({ matchColumns: matchColumns.filter((m) => m !== c) })}
               >

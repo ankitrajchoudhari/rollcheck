@@ -45,7 +45,7 @@ export function ThemeToggle() {
   const Icon = theme === 'light' ? Sun : theme === 'dark' ? Moon : Monitor
   const label = theme === 'system' ? 'System' : theme === 'light' ? 'Light' : 'Dark'
   return (
-    <button type="button" className="btn btn-quiet text-xs" onClick={() => setTheme(next[theme])} aria-label={`Theme: ${label}. Change theme`}>
+    <button type="button" className="btn btn-quiet btn-icon text-xs" onClick={() => setTheme(next[theme])} aria-label={`Theme: ${label}. Change theme`}>
       <Icon size={16} aria-hidden="true" />
       <span className="hidden sm:inline">{label}</span>
     </button>
@@ -135,7 +135,7 @@ export function Footer() {
           Runs in your browser. Files are never uploaded.
         </span>
         <span>Sample data: UCI Student Performance (Cortez, 2008), CC BY 4.0, with synthetic names.</span>
-        <a className="ml-auto underline-offset-2 hover:text-ink hover:underline" href="https://github.com/ankitrajchoudhari/rollcheck">
+        <a className="tap ml-auto underline-offset-2 hover:text-ink hover:underline" href="https://github.com/ankitrajchoudhari/rollcheck">
           Source on GitHub
         </a>
       </div>

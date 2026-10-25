@@ -123,7 +123,7 @@ export function RowDetail({ table, result, rules, index, onClose, decision, onDe
               <StatusBadge status={row.status} />
             </h2>
           </div>
-          <button type="button" className="btn btn-quiet px-2" onClick={onClose} aria-label="Close details">
+          <button type="button" className="btn btn-quiet btn-icon px-2" onClick={onClose} aria-label="Close details">
             <X size={16} aria-hidden="true" />
           </button>
         </header>

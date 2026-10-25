@@ -192,7 +192,7 @@ export function App({ engine: given }: { engine?: EngineClient }) {
                 <label htmlFor="template" className="sr-only">Start from a template</label>
                 <select
                   id="template"
-                  className="field field-sm"
+                  className="field field-sm min-w-0 flex-1 sm:max-w-[320px] sm:flex-none"
                   value=""
                   onChange={(e) => e.target.value && applyTemplateById(e.target.value)}
                 >
